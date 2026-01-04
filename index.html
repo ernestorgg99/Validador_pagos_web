@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador de Pagos Profesional</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<a href="Historial_pagos.html" class="block text-center mt-6 text-blue-600 font-bold hover:underline">
+    Ver historial de pagos registrados
+</a>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <div id="layoutLoading" class="fixed inset-0 bg-white/95 z-50 hidden flex flex-col items-center justify-center">
+        <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-600 border-solid mb-6"></div>
+        <p class="text-blue-600 font-black text-2xl uppercase tracking-widest">Verificando Pago...</p>
+    </div>
+
+    <div id="successView" class="fixed inset-0 bg-green-600 z-40 hidden flex flex-col items-center justify-center text-white p-6">
+        <div class="bg-white/20 p-10 rounded-full mb-10">
+            <i data-lucide="check-circle" class="w-40 h-40"></i>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight">SU PAGO HA SIDO<br>VALIDADO CON ÉXITO</h1>
+        <button onclick="window.location.reload()" class="bg-white text-green-700 px-16 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition-all uppercase">
+            Click aquí para continuar
+        </button>
+    </div>
+
+    <nav class="bg-blue-700 text-white p-6 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center">
+            <span class="text-2xl font-black tracking-tighter">SISTEMA DE VALIDACIÓN</span>
+            <i data-lucide="shield-check" class="w-8 h-8"></i>
+        </div>
+    </nav>
+
+    <main class="flex-grow container mx-auto p-6 flex items-center justify-center">
+        <div class="bg-white rounded-[3rem] shadow-2xl p-10 md:p-16 w-full max-w-2xl border border-gray-100">
+            <h2 class="text-3xl font-black text-gray-800 mb-10 text-center uppercase tracking-tight">Datos del Pago</h2>
+            
+            <form id="paymentForm" class="space-y-8">
+                
+                
+                <div>
+                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Últimos 4 dígitos de Referencia</label>
+                    <input type="text" id="referencia_fin" class="form-input text-2xl" placeholder="Ej: 1234" maxlength="4" required>
+                </div>
+                <div>
+                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Banco de Origen</label>
+                    <select id="banco_origen" class="form-input text-xl">
+                        <option value="Venezuela">Banco de Venezuela</option>
+                        <option value="Banesco">Banesco</option>
+                        <option value="Mercantil">Mercantil</option>
+                        <option value="Provincial">Provincial</option>
+                        <option value="Bancamiga">Bancamiga</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Monto Exacto (Bs.)</label>
+                    <input type="number" step="0.01" id="monto" class="form-input text-2xl" placeholder="0.00" required>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-6 rounded-[2rem] text-2xl shadow-blue-200 shadow-2xl transition-all transform active:scale-95 uppercase mt-4">
+                    VERIFICAR AHORA
+                </button>
+            </form>
+
+            <div id="resultado" class="hidden mt-10 p-8 rounded-[2rem] border-4 text-center animate-bounceIn">
+                <p id="status-message" class="font-black text-xl"></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+/* Ajustes para que los campos sean más grandes y cómodos */
+.form-input {
+    @apply w-full p-5 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:ring-8 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all font-bold;
+}
+
+/* Animación para el mensaje de error */
+@keyframes bounceIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.animate-bounceIn {
+    animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Animación de carga */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1.2s linear infinite;
+}
+
+/* Evitar scroll cuando successView está activo */
+body:has(#successView:not(.hidden)) {
+    overflow: hidden;
+}
