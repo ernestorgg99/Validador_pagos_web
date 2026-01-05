@@ -1,4 +1,4 @@
-const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app/";
+const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
 let paginaActual = 1;
 let totalPaginas = 1;
 
@@ -90,4 +90,5 @@ function limpiarFiltros() {
 // Cargar datos al abrir la página
 
 window.onload = () => cargarDatos(1);
+
 
