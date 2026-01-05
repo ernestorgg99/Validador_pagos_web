@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
 
 document.getElementById('paymentForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -37,4 +37,5 @@ document.getElementById('paymentForm').addEventListener('submit', async (e) => {
         loading.classList.add('hidden');
         alert("Error de conexión con el servidor.");
     }
+
 });
