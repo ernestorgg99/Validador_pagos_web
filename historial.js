@@ -88,7 +88,4 @@ function limpiarFiltros() {
 }
 
 // Cargar datos al abrir la página
-
 window.onload = () => cargarDatos(1);
-
-

@@ -85,7 +85,7 @@
                             <th class="p-6 text-sm font-black text-blue-600 uppercase">Fecha y Hora</th>
                         </tr>
                     </thead>
-                   <tbody id="tabla-pagos-desktop"></tbody>
+                    <tbody id="tabla-pagos-desktop"></tbody>
                 </table>
             </div>
             <div id="lista-pagos-mobile" class="md:hidden divide-y divide-gray-100"></div>
@@ -95,10 +95,15 @@
             <button id="btn-prev" onclick="cambiarPagina(-1)" class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
                 <i data-lucide="chevron-left" class="text-blue-600"></i>
             </button>
+            <span id="pagina-info" class="bg-white px-6 py-4 rounded-2xl shadow font-black text-blue-600">
+                Página 1
+            </span>
+            <button id="btn-next" onclick="cambiarPagina(1)" class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
+                <i data-lucide="chevron-right" class="text-blue-600"></i>
+            </button>
         </div>
     </main>
 
-   <script src="historial.js"></script>
+    <script src="historial.js"></script>
 </body>
 </html>
-
