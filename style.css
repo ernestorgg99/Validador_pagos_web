@@ -27,3 +27,7 @@
 body:has(#successView:not(.hidden)) {
     overflow: hidden;
 }
+#lista-pagos-mobile > div {
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
