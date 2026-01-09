@@ -2,6 +2,17 @@ const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
 let paginaActual = 1;
 let totalPaginas = 1;
 
+//PROTECCIÓN DE RUTA 
+if (!localStorage.getItem('usuario_nombre')) {
+    window.location.href = "login.html";
+}
+
+// Función para cerrar sesión (puedes llamarla desde un botón)
+function cerrarSesion() {
+    localStorage.clear();
+    window.location.href = "login.html";
+}
+
 async function cargarDatos(page = 1) {
     const icon = document.getElementById('sync-icon');
     const inicio = document.getElementById('fecha-inicio').value;

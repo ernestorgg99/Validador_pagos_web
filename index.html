@@ -12,6 +12,34 @@
     Ver historial de pagos registrados
 </a>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+    <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8">
+    <div class="flex items-center gap-3">
+        <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">
+            <span id="user-initial">U</span>
+        </div>
+        <div>
+            <p class="text-xs font-black text-gray-400 uppercase leading-none">Sesión activa</p>
+            <p id="display-username" class="font-bold text-gray-800"></p>
+        </div>
+    </div>
+    <div class="flex gap-4">
+        <a id="btn-admin-link" href="admin.html" class="hidden text-blue-600 font-black text-xs uppercase border-2 border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-50">Panel Admin</a>
+        <button onclick="cerrarSesion()" class="text-red-500 font-black text-xs uppercase">Salir</button>
+    </div>
+</div>
+
+<script>
+    // Script rápido para llenar los datos de arriba
+    document.getElementById('display-username').innerText = localStorage.getItem('usuario_nombre');
+    document.getElementById('user-initial').innerText = localStorage.getItem('usuario_nombre')?.charAt(0).toUpperCase();
+    if(localStorage.getItem('usuario_rol') === 'administrador') {
+        document.getElementById('btn-admin-link').classList.remove('hidden');
+    }
+    function cerrarSesion() {
+        localStorage.clear();
+        window.location.href = "login.html";
+    }
+</script>
 
     <div id="layoutLoading" class="fixed inset-0 bg-white/95 z-50 hidden flex flex-col items-center justify-center">
         <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-600 border-solid mb-6"></div>
