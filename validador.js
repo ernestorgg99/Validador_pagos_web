@@ -13,13 +13,14 @@ form.addEventListener('submit', async (e) => {
     resultadoDiv.classList.add('hidden');
     loading.classList.remove('hidden');
 
-    const montoLimpio = document.getElementById('monto').value.replace(',', '.');
-    const params = new URLSearchParams({
-        referencia_fin: document.getElementById('referencia_fin').value,
-        banco_origen: document.getElementById('banco_origen').value,
-        monto: montoLimpio,
-        usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
-    });
+    const montoBruto = document.getElementById('monto').value;
+const montoLimpio = montoBruto.replace(',', '.');
+const params = new URLSearchParams({
+    referencia_fin: document.getElementById('referencia_fin').value,
+    banco_origen: document.getElementById('banco_origen').value,
+    monto: montoLimpio,
+    usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
+});
 
     try {
         const response = await fetch(`${API_URL}/api/pagos/validar_en_gmail?${params}`);

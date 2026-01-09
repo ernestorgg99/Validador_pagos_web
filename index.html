@@ -117,12 +117,12 @@
                     <div>
     <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Monto Exacto (Bs.)</label>
     <input 
-        type="number" 
-        step="any" 
-        inputmode="decimal" 
+        type="text" 
         id="monto" 
+        inputmode="decimal" 
         class="form-input text-2xl" 
         placeholder="0.00" 
+        oninput="this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '')"
         required
     >
 </div>
