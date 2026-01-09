@@ -160,7 +160,7 @@
         document.getElementById('top-username').innerText = userName;
         document.getElementById('sb-username').innerText = userName;
         document.getElementById('user-initial').innerText = userName?.charAt(0).toUpperCase() || 'U';
-
+        
         // Rol Admin
         if(localStorage.getItem('usuario_rol') === 'administrador') {
             document.getElementById('sb-admin-link').classList.remove('hidden');
@@ -178,12 +178,7 @@
         }
 
         lucide.createIcons();
-        document.getElementById('monto').addEventListener('input', function (e) {
-    // Reemplaza comas por puntos automáticamente
-    if (this.value.includes(',')) {
-        this.value = this.value.replace(',', '.');
-    }
-});
+        
     </script>
     <script src="validador.js"></script>
 </body>

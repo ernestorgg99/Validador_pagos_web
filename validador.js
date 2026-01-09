@@ -1,4 +1,5 @@
 const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
+
 const form = document.getElementById('paymentForm');
 const loading = document.getElementById('layoutLoading');
 const successView = document.getElementById('successView');
@@ -12,10 +13,11 @@ form.addEventListener('submit', async (e) => {
     resultadoDiv.classList.add('hidden');
     loading.classList.remove('hidden');
 
+    const montoLimpio = document.getElementById('monto').value.replace(',', '.');
     const params = new URLSearchParams({
         referencia_fin: document.getElementById('referencia_fin').value,
         banco_origen: document.getElementById('banco_origen').value,
-        monto: document.getElementById('monto').value,
+        monto: montoLimpio,
         usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
     });
 
@@ -80,4 +82,3 @@ function mostrarMensajeError(data) {
     
     if (window.lucide) lucide.createIcons();
 }
-
