@@ -62,7 +62,7 @@ function mostrarMensajeError(data) {
                     <p><span class="font-black">VALIDADO POR:</span> ${data.usuario || 'N/A'}</p>
                     <p><span class="font-black">FECHA Y HORA:</span> ${data.fecha || 'N/A'}</p>
                     <p><span class="font-black">REFERENCIA:</span> ${data.referencia || 'N/A'}</p>
-                    <p><span class="font-black">MONTO:</span> $${data.monto || 'N/A'}</p>
+                    <p><span class="font-black">MONTO:</span> Bs ${data.monto || 'N/A'}</p>
                     <p><span class="font-black">BANCO ORIGEN:</span> ${data.banco_origen || 'N/A'}</p>
                     </div>
             </div>
@@ -80,3 +80,4 @@ function mostrarMensajeError(data) {
     
     if (window.lucide) lucide.createIcons();
 }
+
