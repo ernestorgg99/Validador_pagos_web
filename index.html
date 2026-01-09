@@ -8,38 +8,119 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-<a href="Historial_pagos.html" class="block text-center mt-6 text-blue-600 font-bold hover:underline">
-    Ver historial de pagos registrados
-</a>
-<body class="bg-gray-100 min-h-screen flex flex-col">
-    <div class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8">
-    <div class="flex items-center gap-3">
-        <div class="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-black">
-            <span id="user-initial">U</span>
-        </div>
-        <div>
-            <p class="text-xs font-black text-gray-400 uppercase leading-none">Sesión activa</p>
-            <p id="display-username" class="font-bold text-gray-800"></p>
-        </div>
-    </div>
-    <div class="flex gap-4">
-        <a id="btn-admin-link" href="admin.html" class="hidden text-blue-600 font-black text-xs uppercase border-2 border-blue-100 px-4 py-2 rounded-xl hover:bg-blue-50">Panel Admin</a>
-        <button onclick="cerrarSesion()" class="text-red-500 font-black text-xs uppercase">Salir</button>
-    </div>
-</div>
+<body class="bg-gray-100 min-h-screen flex overflow-x-hidden">
 
-<script>
-    // Script rápido para llenar los datos de arriba
-    document.getElementById('display-username').innerText = localStorage.getItem('usuario_nombre');
-    document.getElementById('user-initial').innerText = localStorage.getItem('usuario_nombre')?.charAt(0).toUpperCase();
-    if(localStorage.getItem('usuario_rol') === 'administrador') {
-        document.getElementById('btn-admin-link').classList.remove('hidden');
-    }
-    function cerrarSesion() {
-        localStorage.clear();
-        window.location.href = "login.html";
-    }
-</script>
+    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-blue-800 text-white w-72 transform -translate-x-full transition-transform duration-300 ease-in-out z-50 shadow-2xl flex flex-col">
+        <div class="p-8 border-b border-blue-700 flex justify-between items-center">
+            <span class="text-xl font-black tracking-tighter uppercase">Menú Sistema</span>
+            <button onclick="toggleSidebar()" class="hover:bg-blue-700 p-2 rounded-lg">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+
+        <nav class="flex-grow p-6 space-y-4">
+            <div class="bg-blue-900/50 p-4 rounded-2xl mb-6">
+                <p class="text-[10px] font-black text-blue-300 uppercase tracking-widest mb-1">Usuario Activo</p>
+                <p id="sb-username" class="font-bold truncate"></p>
+            </div>
+
+            <a href="index.html" class="flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group">
+                <i data-lucide="home" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Inicio
+            </a>
+            
+            <a href="Historial_pagos.html" class="flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group">
+                <i data-lucide="list" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Historial Pagos
+            </a>
+
+            <a id="sb-admin-link" href="admin.html" class="hidden flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group border-2 border-blue-600">
+                <i data-lucide="shield-alert" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Panel Admin
+            </a>
+
+            <div class="pt-4 border-t border-blue-700">
+                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest px-4 mb-2">Próximamente</p>
+                <div class="flex items-center gap-4 p-4 opacity-40 cursor-not-allowed italic text-sm">
+                    <i data-lucide="pie-chart" class="w-5 h-5"></i> Reportes Avanzados
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6 border-t border-blue-700">
+            <button onclick="cerrarSesion()" class="w-full bg-red-500/20 hover:bg-red-500 text-red-400 hover:text-white p-4 rounded-2xl transition font-black flex items-center justify-center gap-2 uppercase text-xs">
+                <i data-lucide="log-out" class="w-4 h-4"></i> Cerrar Sesión
+            </button>
+        </div>
+    </aside>
+
+    <div class="flex-grow flex flex-col min-h-screen">
+        
+        <header class="bg-white border-b border-gray-200 p-4 flex justify-between items-center px-8 sticky top-0 z-30">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="bg-blue-50 text-blue-600 p-3 rounded-2xl hover:bg-blue-100 transition shadow-sm">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <span class="text-xl font-black text-gray-800 uppercase tracking-tighter hidden md:block">Sistema de Validación</span>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="text-right hidden sm:block">
+                    <p class="text-[10px] font-black text-gray-400 uppercase leading-none">Conectado como</p>
+                    <p id="top-username" class="font-bold text-gray-700 text-sm"></p>
+                </div>
+                <div class="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-black shadow-lg">
+                    <span id="user-initial">U</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-grow p-6 flex items-center justify-center">
+            <div class="bg-white rounded-[3rem] shadow-2xl p-10 md:p-16 w-full max-w-2xl border border-gray-100 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-50 rounded-bl-full -mr-10 -mt-10 opacity-50"></div>
+
+                <h2 class="text-3xl font-black text-gray-800 mb-10 text-center uppercase tracking-tight">Datos del Pago</h2>
+                
+                <form id="paymentForm" class="space-y-8 relative z-10">
+                    <div>
+                        <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Últimos 4 dígitos de Referencia</label>
+                        <input type="text" id="referencia_fin" class="form-input text-2xl" placeholder="Ej: 1234" maxlength="4" required>
+                    </div>
+                    <div>
+                        <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Banco de Origen</label>
+                        <select id="banco_origen" class="form-input text-xl">
+                            <option value="Banesco">Banco Banesco</option>
+                            <option value="Venezuela">Banco Venezuela</option>
+                            <option value="Mercantil">Banco Mercantil</option>
+                            <option value="EXTERIOR">Banco Exterior</option>
+                            <option value="TESORO">Banco del Tesoro</option>
+                            <option value="provincial">Banco Provincial</option>
+                            <option value="Bicentenario">Banco Bicentenario</option>
+                            <option value="BANCAMIGA">Banco Bancamiga</option>
+                            <option value="BNC">Banco Nacional de Crédito</option>
+                            <option value="CARONI">Banco Caroni</option>
+                            <option value="SUR">Banco del Sur</option>
+                            <option value="BANPLUS">Banco Ban plus</option>
+                            <option value="BANCOVENEZOLANODECREDITO">Banco Venezolano de Credito</option>
+                            <option value="BANFANB">Banco Banfanb</option>
+                            <option value="CARIBE">Banco del Caribe</option>
+                            <option value="BANCRECER">Bancrecer</option>
+                            <option value="FONDOCOMUN">Banco Fondo Comun</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Monto Exacto (Bs.)</label>
+                        <input type="number" step="0.01" id="monto" class="form-input text-2xl" placeholder="0.00" required>
+                    </div>
+
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-6 rounded-[2rem] text-2xl shadow-blue-200 shadow-2xl transition-all transform active:scale-95 uppercase mt-4">
+                        VERIFICAR AHORA
+                    </button>
+                </form>
+
+                <div id="resultado" class="hidden mt-10 p-8 rounded-[2rem] border-4 text-center animate-bounceIn">
+                    <p id="status-message" class="font-black text-xl"></p>
+                </div>
+            </div>
+        </main>
+    </div>
 
     <div id="layoutLoading" class="fixed inset-0 bg-white/95 z-50 hidden flex flex-col items-center justify-center">
         <div class="animate-spin rounded-full h-20 w-20 border-t-4 border-blue-600 border-solid mb-6"></div>
@@ -50,68 +131,46 @@
         <div class="bg-white/20 p-10 rounded-full mb-10">
             <i data-lucide="check-circle" class="w-40 h-40"></i>
         </div>
-        <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight">SU PAGO HA SIDO<br>VALIDADO CON ÉXITO</h1>
+        <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight uppercase">Pago Validado<br>con éxito</h1>
         <button onclick="window.location.reload()" class="bg-white text-green-700 px-16 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition-all uppercase">
-            Click aquí para continuar
+            Continuar
         </button>
     </div>
 
-    <nav class="bg-blue-700 text-white p-6 shadow-xl">
-        <div class="container mx-auto flex justify-between items-center">
-            <span class="text-2xl font-black tracking-tighter">SISTEMA DE VALIDACIÓN</span>
-            <i data-lucide="shield-check" class="w-8 h-8"></i>
-        </div>
-    </nav>
+    <script>
+        // Carga de datos de usuario
+        const userName = localStorage.getItem('usuario_nombre');
+        document.getElementById('top-username').innerText = userName;
+        document.getElementById('sb-username').innerText = userName;
+        document.getElementById('user-initial').innerText = userName?.charAt(0).toUpperCase() || 'U';
 
-    <main class="flex-grow container mx-auto p-6 flex items-center justify-center">
-        <div class="bg-white rounded-[3rem] shadow-2xl p-10 md:p-16 w-full max-w-2xl border border-gray-100">
-            <h2 class="text-3xl font-black text-gray-800 mb-10 text-center uppercase tracking-tight">Datos del Pago</h2>
-            
-            <form id="paymentForm" class="space-y-8">
-                
-                
-                <div>
-                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Últimos 4 dígitos de Referencia</label>
-                    <input type="text" id="referencia_fin" class="form-input text-2xl" placeholder="Ej: 1234" maxlength="4" required>
-                </div>
-                <div>
-                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Banco de Origen</label>
-                    <select id="banco_origen" class="form-input text-xl">
-                        <option value="Banesco">Banco Banesco</option>
-                        <option value="Venezuela">Banco Venezuela</option>
-                        <option value="Mercantil">Banco Mercantil</option>
-                        <option value="EXTERIOR">Banco Exterior</option>
-                        <option value="TESORO">Banco del Tesoro</option>
-                        <option value="provincial">Banco Provincial</option>
-                        <option value="Bicentenario">Banco Bicentenario</option>
-                        <option value="BANCAMIGA">Banco Bancamiga</option>
-                        <option value="BNC">Banco Nacional de Crédito</option>
-                        <option value="CARONI">Banco Caroni</option>
-                        <option value="SUR">Banco del Sur</option>
-                        <option value="BANPLUS">Banco Ban plus</option>
-                        <option value="BANCOVENEZOLANODECREDITO">Banco Venezolano de Credito</option>
-                        <option value="BANFANB">Banco Banfanb</option>
-                        <option value="CARIBE">Banco del Caribe</option>
-                        <option value="BANCRECER">Bancrecer</option>
-                        <option value="FONDOCOMUN">Banco Fondo Comun</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-sm font-black text-blue-600 uppercase ml-2 mb-2 block">Monto Exacto (Bs.)</label>
-                    <input type="number" step="0.01" id="monto" class="form-input text-2xl" placeholder="0.00" required>
-                </div>
+        // Rol Admin
+        if(localStorage.getItem('usuario_rol') === 'administrador') {
+            document.getElementById('sb-admin-link').classList.remove('hidden');
+        }
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-6 rounded-[2rem] text-2xl shadow-blue-200 shadow-2xl transition-all transform active:scale-95 uppercase mt-4">
-                    VERIFICAR AHORA
-                </button>
-            </form>
+        // Toggle Sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('-translate-x-full');
+        }
 
-            <div id="resultado" class="hidden mt-10 p-8 rounded-[2rem] border-4 text-center animate-bounceIn">
-                <p id="status-message" class="font-black text-xl"></p>
-            </div>
-        </div>
-    </main>
+        function cerrarSesion() {
+            localStorage.clear();
+            window.location.href = "login.html";
+        }
 
+        lucide.createIcons();
+    </script>
     <script src="validador.js"></script>
 </body>
+    <div id="successView" class="fixed inset-0 bg-green-600 z-40 hidden flex flex-col items-center justify-center text-white p-6">
+        <div class="bg-white/20 p-10 rounded-full mb-10">
+            <i data-lucide="check-circle" class="w-40 h-40"></i>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight">SU PAGO HA SIDO<br>VALIDADO CON ÉXITO</h1>
+        <button onclick="window.location.reload()" class="bg-white text-green-700 px-16 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition-all uppercase">
+            Continuar
+        </button>
+    </div>
 </html>
