@@ -58,6 +58,7 @@ function procesarRespuesta(res, data, msgDiv) {
     if (res.ok) {
         localStorage.setItem('usuario_nombre', data.nombre);
         localStorage.setItem('usuario_rol', data.rol);
+        localStorage.setItem('token', data.token); // Guardar token JWT
 
         msgDiv.className = "mt-6 p-4 rounded-2xl text-center font-bold text-sm bg-green-100 text-green-700 border-2 border-green-200";
         msgDiv.innerText = "Acceso concedido. Redirigiendo...";
