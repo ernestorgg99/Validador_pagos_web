@@ -18,7 +18,10 @@ async function cargarDatosReporte() {
             return;
         }
 
-        const response = await fetch(`${API_URL}/api/admin/historial_completo`, {
+        // Pedimos 2000 registros para asegurar que el reporte cubra toda la data
+        // Idealmente el backend debería tener un endpoint de "estadísticas" para no traer toda la data cruda,
+        // pero para 790 registros esto funciona perfecto y es rápido.
+        const response = await fetch(`${API_URL}/api/admin/historial_completo?per_page=2000`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
