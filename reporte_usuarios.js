@@ -83,3 +83,4 @@ function mostrarMensajeError(data) {
 
     if (window.lucide) lucide.createIcons();
 }
+
