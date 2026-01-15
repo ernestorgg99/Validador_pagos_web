@@ -1,6 +1,6 @@
-if (localStorage.getItem('usuario_nombre')) {
-    window.location.href = "index.html";
-}
+// Lógica de redirección eliminada para evitar bucles.
+// El login solo debe redirigir SI el usuario completa el login exitosamente.
+localStorage.removeItem('token'); // Limpiamos token viejos al entrar al login para asegurar sesión limpia.
 // API_URL cargado desde config.js
 
 // --- INICIALIZACIÓN DE ICONOS ---
