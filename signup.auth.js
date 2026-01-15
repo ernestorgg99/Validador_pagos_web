@@ -1,7 +1,7 @@
 if (localStorage.getItem('usuario_nombre')) {
     window.location.href = "index.html";
 }
-const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
+// API_URL cargado desde config.js
 
 // --- INICIALIZACIÓN DE ICONOS ---
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const msgDiv = document.getElementById('mensaje');
-    
+
     // Captura de datos
     const payload = {
         nombre: document.getElementById('nombre').value,
@@ -24,10 +24,10 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     try {
         const response = await fetch(`${API_URL}/api/auth/signup`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        
+
         const data = await response.json();
 
         msgDiv.classList.remove('hidden');
@@ -43,7 +43,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
                 </div>
             `;
             document.getElementById('signupForm').reset();
-            
+
             // Redirigir al login después de 3 segundos
             setTimeout(() => window.location.href = "login.html", 3500);
         } else {

@@ -1,4 +1,4 @@
-const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
+// API_URL cargado desde config.js
 let paginaActual = 1;
 let totalPaginas = 1;
 
@@ -19,8 +19,8 @@ async function cargarDatos(page = 1) {
     const fin = document.getElementById('fecha-fin').value;
     const banco = document.getElementById('filtro-banco').value;
     const referencia = document.getElementById('filtro-referencia').value;
-    
-    if(icon) icon.classList.add('animate-spin');
+
+    if (icon) icon.classList.add('animate-spin');
     paginaActual = page;
 
     // Scroll suave hacia arriba
@@ -34,14 +34,14 @@ async function cargarDatos(page = 1) {
     try {
         const response = await fetch(`${API_URL}/api/pagos/listar?${params.toString()}`);
         const data = await response.json();
-        
+
         totalPaginas = data.pages || 1;
         renderizar(data.pagos || []);
         actualizarControles();
     } catch (e) {
         console.error("Error:", e);
     } finally {
-        if(icon) setTimeout(() => icon.classList.remove('animate-spin'), 500);
+        if (icon) setTimeout(() => icon.classList.remove('animate-spin'), 500);
     }
 }
 
@@ -64,7 +64,7 @@ function renderizar(pagos) {
                 <td class="p-6 font-mono text-gray-500 font-bold">${p.referencia}</td>
                 <td class="p-6 text-gray-500 text-sm">${fechaObj.toLocaleString()}</td>
             </tr>`;
-        
+
         mobileDiv.innerHTML += `
             <div class="p-6 border-b border-gray-100">
                 <div class="flex justify-between items-center">

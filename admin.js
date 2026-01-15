@@ -1,4 +1,4 @@
-const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
+// API_URL cargado desde config.js
 
 // 1. SEGURIDAD: Solo el rol 'administrador' entra aquí
 if (localStorage.getItem('usuario_rol') !== 'administrador') {
@@ -59,17 +59,17 @@ function renderizarUsuarios(lista) {
                             <i data-lucide="key" class="w-5 h-5"></i>
                         </button>
 
-                        ${!user.esta_aprobado ? 
-                            `<button onclick="aprobarUsuario('${user.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 font-bold text-xs transition shadow-sm">Aprobar</button>` : 
-                            `<button onclick="suspenderUsuario('${user.id}')" class="text-red-400 hover:text-red-600 font-bold text-xs uppercase transition p-2 hover:bg-red-50 rounded-lg">Suspender</button>`
-                        }
+                        ${!user.esta_aprobado ?
+                `<button onclick="aprobarUsuario('${user.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 font-bold text-xs transition shadow-sm">Aprobar</button>` :
+                `<button onclick="suspenderUsuario('${user.id}')" class="text-red-400 hover:text-red-600 font-bold text-xs uppercase transition p-2 hover:bg-red-50 rounded-lg">Suspender</button>`
+            }
                     </div>
                 </td>
             </tr>
         `;
         container.innerHTML += row;
     });
-    
+
     // IMPORTANTE: Reiniciar iconos de Lucide después de renderizar la tabla
     if (window.lucide) lucide.createIcons();
 }
@@ -86,7 +86,7 @@ async function cambiarPassword(userId) {
     try {
         const res = await fetch(`${API_URL}/api/admin/cambiar_password`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: userId, password: nuevaClave })
         });
         if (res.ok) {
@@ -119,7 +119,7 @@ async function cambiarRol(userId, nuevoRol) {
     try {
         await fetch(`${API_URL}/api/admin/cambiar_rol`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: userId, rol: nuevoRol })
         });
     } catch (e) { console.error("Error al cambiar rol"); }
@@ -129,7 +129,7 @@ async function cambiarGrupo(userId, nuevoGrupo) {
     try {
         await fetch(`${API_URL}/api/admin/cambiar_grupo`, {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ id: userId, grupo: nuevoGrupo })
         });
     } catch (e) { console.error("Error al cambiar grupo"); }

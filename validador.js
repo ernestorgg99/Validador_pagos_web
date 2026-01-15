@@ -1,4 +1,4 @@
-const API_URL = "https://relaxed-jorrie-ergg99-b3008c3b.koyeb.app";
+// API_URL cargado desde config.js
 
 const form = document.getElementById('paymentForm');
 const loading = document.getElementById('layoutLoading');
@@ -8,19 +8,19 @@ const statusMessage = document.getElementById('status-message');
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
+
     // 1. Limpiar estados previos y mostrar carga
     resultadoDiv.classList.add('hidden');
     loading.classList.remove('hidden');
 
     const montoBruto = document.getElementById('monto').value;
-const montoLimpio = montoBruto.replace(',', '.');
-const params = new URLSearchParams({
-    referencia_fin: document.getElementById('referencia_fin').value,
-    banco_origen: document.getElementById('banco_origen').value,
-    monto: montoLimpio,
-    usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
-});
+    const montoLimpio = montoBruto.replace(',', '.');
+    const params = new URLSearchParams({
+        referencia_fin: document.getElementById('referencia_fin').value,
+        banco_origen: document.getElementById('banco_origen').value,
+        monto: montoLimpio,
+        usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
+    });
 
     try {
         const response = await fetch(`${API_URL}/api/pagos/validar_en_gmail?${params}`);
@@ -49,11 +49,11 @@ const params = new URLSearchParams({
 function mostrarMensajeError(data) {
     resultadoDiv.classList.remove('hidden');
     const textoError = data.error || "Error al validar";
-    
+
     // Si el error es por pago duplicado (usualmente el servidor envía usuario y fecha)
     if (textoError.includes("anteriormente") || textoError.includes("validado")) {
         resultadoDiv.className = "mt-10 p-8 rounded-[2rem] border-4 border-amber-200 bg-amber-50 text-amber-700 animate-bounceIn shadow-inner";
-        
+
         // Construimos el HTML con la leyenda detallada
         statusMessage.innerHTML = `
             <div class="flex flex-col items-center gap-2">
@@ -80,6 +80,6 @@ function mostrarMensajeError(data) {
             </div>
         `;
     }
-    
+
     if (window.lucide) lucide.createIcons();
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen">
 
     <nav class="bg-blue-700 text-white p-6 shadow-xl">
@@ -17,7 +19,8 @@
                 </a>
                 <h1 class="text-2xl font-black uppercase">Historial de Pagos</h1>
             </div>
-            <button onclick="cargarDatos(1)" class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 px-6 py-2 rounded-xl font-bold transition">
+            <button onclick="cargarDatos(1)"
+                class="flex items-center space-x-2 bg-green-500 hover:bg-green-600 px-6 py-2 rounded-xl font-bold transition">
                 <i data-lucide="refresh-cw" id="sync-icon"></i>
                 <span>Actualizar</span>
             </button>
@@ -25,53 +28,59 @@
     </nav>
 
     <div class="container mx-auto px-4 mt-6">
-    <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100 flex flex-wrap gap-4 items-end">
-        <div class="flex-1 min-w-[150px]">
-            <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Desde</label>
-            <input type="date" id="fecha-inicio" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
-        </div>
-        <div class="flex-1 min-w-[150px]">
-            <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Hasta</label>
-            <input type="date" id="fecha-fin" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
-        </div>
-        <div class="flex-1 min-w-[150px]">
-            <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Banco</label>
-            <select id="filtro-banco" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
-                        <option value="">TODOS</option>
-                        <option value="Banesco">Banco Banesco</option>
-                        <option value="Venezuela">Banco Venezuela</option>
-                        <option value="Mercantil">Banco Mercantil</option>
-                        <option value="EXTERIOR">Banco Exterior</option>
-                        <option value="TESORO">Banco del Tesoro</option>
-                        <option value="provincial">Banco Provincial</option>
-                        <option value="Bicentenario">Banco Bicentenario</option>
-                        <option value="BANCAMIGA">Banco Bancamiga</option>
-                        <option value="BNC">Banco Nacional de Crédito</option>
-                        <option value="CARONI">Banco Caroni</option>
-                        <option value="SUR">Banco del Sur</option>
-                        <option value="BANPLUS">Banco Ban plus</option>
-                        <option value="BANCOVENEZOLANODECREDITO">Banco Venezolano de Credito</option>
-                        <option value="BANFANB">Banco Banfanb</option>
-                        <option value="CARIBE">Banco del Caribe</option>
-                        <option value="BANCRECER">Bancrecer</option>
-                        <option value="FONDOCOMUN">Banco Fondo Comun</option>
-                    </select>
-        </div>
-        <div class="flex-1 min-w-[150px]">
-            <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Referencia</label>
-            <input type="text" id="filtro-referencia" placeholder="Ej: 1234" class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
-        </div>
-        
-        <div class="flex gap-2">
-            <button onclick="cargarDatos(1)" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-black transition-all shadow-lg uppercase">
-                Filtrar
-            </button>
-            <button onclick="limpiarFiltros()" class="bg-gray-100 hover:bg-gray-200 text-gray-500 px-4 py-3 rounded-xl transition-all">
-                <i data-lucide="rotate-ccw"></i>
-            </button>
+        <div class="bg-white p-6 rounded-[2rem] shadow-lg border border-gray-100 flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[150px]">
+                <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Desde</label>
+                <input type="date" id="fecha-inicio"
+                    class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
+            </div>
+            <div class="flex-1 min-w-[150px]">
+                <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Hasta</label>
+                <input type="date" id="fecha-fin"
+                    class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
+            </div>
+            <div class="flex-1 min-w-[150px]">
+                <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Banco</label>
+                <select id="filtro-banco"
+                    class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
+                    <option value="">TODOS</option>
+                    <option value="Banesco">Banco Banesco</option>
+                    <option value="Venezuela">Banco Venezuela</option>
+                    <option value="Mercantil">Banco Mercantil</option>
+                    <option value="EXTERIOR">Banco Exterior</option>
+                    <option value="TESORO">Banco del Tesoro</option>
+                    <option value="provincial">Banco Provincial</option>
+                    <option value="Bicentenario">Banco Bicentenario</option>
+                    <option value="BANCAMIGA">Banco Bancamiga</option>
+                    <option value="BNC">Banco Nacional de Crédito</option>
+                    <option value="CARONI">Banco Caroni</option>
+                    <option value="SUR">Banco del Sur</option>
+                    <option value="BANPLUS">Banco Ban plus</option>
+                    <option value="BANCOVENEZOLANODECREDITO">Banco Venezolano de Credito</option>
+                    <option value="BANFANB">Banco Banfanb</option>
+                    <option value="CARIBE">Banco del Caribe</option>
+                    <option value="BANCRECER">Bancrecer</option>
+                    <option value="FONDOCOMUN">Banco Fondo Comun</option>
+                </select>
+            </div>
+            <div class="flex-1 min-w-[150px]">
+                <label class="text-xs font-black text-blue-600 uppercase ml-2 mb-1 block">Referencia</label>
+                <input type="text" id="filtro-referencia" placeholder="Ej: 1234"
+                    class="w-full p-3 bg-gray-50 border-2 border-gray-100 rounded-xl outline-none font-bold text-gray-600">
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="cargarDatos(1)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-black transition-all shadow-lg uppercase">
+                    Filtrar
+                </button>
+                <button onclick="limpiarFiltros()"
+                    class="bg-gray-100 hover:bg-gray-200 text-gray-500 px-4 py-3 rounded-xl transition-all">
+                    <i data-lucide="rotate-ccw"></i>
+                </button>
+            </div>
         </div>
     </div>
-</div>
 
     <main class="container mx-auto p-4 md:p-8">
         <div class="bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100">
@@ -92,18 +101,22 @@
         </div>
 
         <div class="flex justify-center items-center mt-8 gap-4">
-            <button id="btn-prev" onclick="cambiarPagina(-1)" class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
+            <button id="btn-prev" onclick="cambiarPagina(-1)"
+                class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
                 <i data-lucide="chevron-left" class="text-blue-600"></i>
             </button>
             <span id="pagina-info" class="bg-white px-6 py-4 rounded-2xl shadow font-black text-blue-600">
                 Página 1
             </span>
-            <button id="btn-next" onclick="cambiarPagina(1)" class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
+            <button id="btn-next" onclick="cambiarPagina(1)"
+                class="bg-white p-4 rounded-2xl shadow hover:bg-gray-50 disabled:opacity-20 transition-all">
                 <i data-lucide="chevron-right" class="text-blue-600"></i>
             </button>
         </div>
     </main>
 
+    <script src="config.js"></script>
     <script src="historial.js"></script>
 </body>
+
 </html>
