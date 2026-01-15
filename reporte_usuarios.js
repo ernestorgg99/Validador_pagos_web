@@ -1,86 +1,154 @@
 // API_URL cargado desde config.js
 
-const form = document.getElementById('paymentForm');
-const loading = document.getElementById('layoutLoading');
-const successView = document.getElementById('successView');
-const resultadoDiv = document.getElementById('resultado');
-const statusMessage = document.getElementById('status-message');
-
-form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    // 1. Limpiar estados previos y mostrar carga
-    resultadoDiv.classList.add('hidden');
-    loading.classList.remove('hidden');
-
-    const montoBruto = document.getElementById('monto').value;
-    const montoLimpio = montoBruto.replace(',', '.');
-    const params = new URLSearchParams({
-        referencia_fin: document.getElementById('referencia_fin').value,
-        banco_origen: document.getElementById('banco_origen').value,
-        monto: montoLimpio,
-        usuario_nombre: localStorage.getItem('usuario_nombre') || 'desconocido'
-    });
-
-    try {
-        const response = await fetch(`${API_URL}/api/pagos/validar_en_gmail?${params}`);
-        const data = await response.json();
-
-        // 2. Ocultar pantalla de carga
-        loading.classList.add('hidden');
-
-        if (response.ok) {
-            // ÉXITO: Pantalla verde
-            successView.classList.remove('hidden');
-            if (window.lucide) lucide.createIcons();
-        } else {
-            // ERROR CONTROLADO: Pasamos todo el objeto 'data' para extraer usuario y fecha
-            mostrarMensajeError(data);
-        }
-
-    } catch (error) {
-        // ERROR DE RED O SERVIDOR CAÍDO
-        loading.classList.add('hidden');
-        console.error("Error de conexión:", error);
-        mostrarMensajeError("No se pudo conectar con el servidor. Verifique su conexión.");
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    cargarDatosReporte();
+    lucide.createIcons();
 });
 
-function mostrarMensajeError(data) {
-    resultadoDiv.classList.remove('hidden');
-    const textoError = data.error || "Error al validar";
-
-    // Si el error es por pago duplicado (usualmente el servidor envía usuario y fecha)
-    if (textoError.includes("anteriormente") || textoError.includes("validado")) {
-        resultadoDiv.className = "mt-10 p-8 rounded-[2rem] border-4 border-amber-200 bg-amber-50 text-amber-700 animate-bounceIn shadow-inner";
-
-        // Construimos el HTML con la leyenda detallada
-        statusMessage.innerHTML = `
-            <div class="flex flex-col items-center gap-2">
-                <i data-lucide="info" class="w-8 h-8 mb-2"></i>
-                <strong class="text-2xl uppercase tracking-tighter">${textoError}</strong>
-                <div class="h-px w-full bg-amber-200 my-2"></div>
-                <div class="text-sm space-y-1">
-                    <p class="font-bold uppercase opacity-80">Detalles del registro:</p>
-                    <p><span class="font-black">VALIDADO POR:</span> ${data.usuario || 'N/A'}</p>
-                    <p><span class="font-black">FECHA Y HORA:</span> ${data.fecha || 'N/A'}</p>
-                    <p><span class="font-black">REFERENCIA:</span> ${data.referencia || 'N/A'}</p>
-                    <p><span class="font-black">MONTO:</span> Bs ${data.monto || 'N/A'}</p>
-                    <p><span class="font-black">BANCO ORIGEN:</span> ${data.banco_origen || 'N/A'}</p>
-                    </div>
-            </div>
-        `;
-    } else {
-        // Errores generales (Monto incorrecto, referencia no encontrada, etc.)
-        resultadoDiv.className = "mt-10 p-8 rounded-[2rem] border-4 border-red-200 bg-red-50 text-red-700 animate-bounceIn";
-        statusMessage.innerHTML = `
-            <div class="flex flex-col items-center gap-2">
-                <i data-lucide="x-circle" class="w-8 h-8 mb-2"></i>
-                <strong class="text-xl">${textoError}</strong>
-            </div>
-        `;
-    }
-
-    if (window.lucide) lucide.createIcons();
+// --- NUEVA FUNCIÓN PARA CERRAR EL MODAL ---
+function cerrarModal() {
+    document.getElementById('modalDetalle').classList.add('hidden');
 }
 
+async function cargarDatosReporte() {
+    try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const response = await fetch(`${API_URL}/api/admin/historial_completo`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                console.error("Auth error:", response.status);
+                localStorage.removeItem('token'); // Limpiar token inválido
+                alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
+                window.location.href = 'login.html';
+                return;
+            }
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("Datos recibidos:", data); // Debug para el usuario
+
+        let pagos = [];
+        if (Array.isArray(data)) {
+            // Soporte para backend antiguo
+            pagos = data;
+        } else if (data.pagos && Array.isArray(data.pagos)) {
+            // Soporte para backend nuevo con paginación
+            pagos = data.pagos;
+        } else {
+            console.error("Formato de datos no reconocido:", data);
+            throw new TypeError("El formato de respuesta del servidor no es válido.");
+        }
+
+        document.getElementById('total-general').innerText = pagos.length;
+
+        const resumen = pagos.reduce((acc, pago) => {
+            const user = pago.usuario_nombre || 'Sistema';
+            if (!acc[user]) acc[user] = [];
+            acc[user].push(pago);
+            return acc;
+        }, {});
+
+        // --- NUEVA LÓGICA: Convertir a array y ordenar de mayor a menor ---
+        const usuariosOrdenados = Object.keys(resumen).sort((a, b) => {
+            return resumen[b].length - resumen[a].length;
+        });
+
+        const container = document.getElementById('fichasContainer');
+        container.innerHTML = "";
+
+        usuariosOrdenados.forEach(user => {
+            const cant = resumen[user].length;
+            const ficha = document.createElement('div');
+            // Clases actualizadas para ser más compactas en móvil (p-4 en lugar de p-8)
+            ficha.className = "bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-md hover:shadow-xl transition-all cursor-pointer border-b-4 md:border-b-8 border-blue-600 group";
+            ficha.onclick = () => mostrarDetalle(user, resumen[user]);
+
+            ficha.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <div class="bg-blue-50 text-blue-600 p-2 md:p-3 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition">
+                        <i data-lucide="user" class="w-4 h-4 md:w-6 md:h-6"></i>
+                    </div>
+                    <span class="text-2xl md:text-4xl font-black text-gray-800">${cant}</span>
+                </div>
+                <div>
+                    <p class="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Usuario</p>
+                    <h4 class="text-sm md:text-lg font-black text-gray-700 uppercase truncate">${user}</h4>
+                </div>
+            `;
+            container.appendChild(ficha);
+        });
+        lucide.createIcons();
+    } catch (error) {
+        console.error("Error cargando reporte:", error);
+    }
+}
+function mostrarDetalle(usuario, listaPagos) {
+    const modal = document.getElementById('modalDetalle');
+    document.getElementById('det-user-name').innerText = usuario;
+    modal.classList.remove('hidden');
+
+    const tabla = document.getElementById('listaDetalleBody');
+    const filtroInput = document.getElementById('filtroFecha');
+
+    // Resetear el filtro al abrir un usuario nuevo
+    filtroInput.value = "";
+
+    const opcionesFecha = {
+        day: '2-digit', month: '2-digit', year: 'numeric',
+        hour: '2-digit', minute: '2-digit', hour12: true
+    };
+    const formateador = new Intl.DateTimeFormat('es-VE', opcionesFecha);
+
+    const pintarTabla = (datos) => {
+        if (datos.length === 0) {
+            tabla.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-400 italic">No hay pagos para esta fecha</td></tr>`;
+            return;
+        }
+
+        tabla.innerHTML = datos.map(p => {
+            const fechaObj = new Date(p.fecha_validacion || p.fecha);
+            const fechaFormateada = formateador.format(fechaObj);
+
+            return `
+                <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
+                    <td class="py-4 text-xs font-medium text-gray-600">${fechaFormateada}</td>
+                    <td class="py-4 font-mono text-blue-700 bg-blue-50/50 px-2 rounded-lg">${p.referencia}</td>
+                    <td class="py-4 uppercase text-[10px] font-bold text-gray-400">${p.banco_origen}</td>
+                    <td class="py-4 text-right">
+                        <span class="text-blue-600 font-black px-3 py-1 bg-blue-50 rounded-full">
+                            Bs ${parseFloat(p.monto).toLocaleString('es-VE', { minimumFractionDigits: 2 })}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    };
+
+    // --- LÓGICA DEL FILTRO DE FECHA RESTAURADA ---
+    filtroInput.onchange = (e) => {
+        const fechaSeleccionada = e.target.value; // Formato YYYY-MM-DD
+        if (!fechaSeleccionada) {
+            pintarTabla(listaPagos);
+            return;
+        }
+
+        const filtrados = listaPagos.filter(p => {
+            const f = p.fecha_validacion || p.fecha;
+            return f.startsWith(fechaSeleccionada);
+        });
+        pintarTabla(filtrados);
+    };
+
+    pintarTabla(listaPagos);
+}
