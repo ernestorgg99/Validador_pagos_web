@@ -47,6 +47,54 @@ function abrirModalEdicion(userId) {
     document.getElementById('edit-password').value = ""; // Limpiar password
 
     document.getElementById('modalEditar').classList.remove('hidden');
+    document.getElementById('modalEditar').classList.remove('hidden');
+
+    // Cargar permisos del usuario
+    cargarPermisosEnModal(user.permisos || []);
+}
+
+let catalogosCache = null;
+
+async function cargarCatalogos() {
+    if (catalogosCache) return catalogosCache;
+    try {
+        const res = await fetch(`${API_URL}/api/admin/catalogos`, { headers: getAuthHeaders() });
+        if (res.ok) {
+            catalogosCache = await res.json();
+            return catalogosCache;
+        }
+    } catch (e) { console.error("Error cargando catálogos", e); }
+    return null;
+}
+
+async function cargarPermisosEnModal(permisosUsuario) {
+    const container = document.getElementById('permisos-container');
+    container.innerHTML = '<div class="text-xs text-gray-400">Cargando...</div>';
+
+    const catalogos = await cargarCatalogos();
+    if (!catalogos) {
+        container.innerHTML = '<div class="text-red-400 text-xs">Error cargando opciones</div>';
+        return;
+    }
+
+    container.innerHTML = "";
+
+    // Parsear permisos si vienen como string JSON (backup safety)
+    let userPerms = permisosUsuario;
+    if (typeof userPerms === 'string') {
+        try { userPerms = JSON.parse(userPerms); } catch (e) { userPerms = []; }
+    }
+
+    catalogos.permisos_disponibles.forEach(permiso => {
+        const isChecked = userPerms.includes(permiso.key) ? 'checked' : '';
+        const item = `
+            <label class="flex items-center space-x-2 p-2 hover:bg-white rounded-lg transition cursor-pointer">
+                <input type="checkbox" value="${permiso.key}" class="permiso-check w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" ${isChecked}>
+                <span class="text-sm font-medium text-gray-700">${permiso.label}</span>
+            </label>
+        `;
+        container.innerHTML += item;
+    });
 }
 
 document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
@@ -58,7 +106,8 @@ document.getElementById('formEditarUsuario').addEventListener('submit', async (e
         usuario: document.getElementById('edit-email').value,
         rol: document.getElementById('edit-rol').value,
         grupo: document.getElementById('edit-grupo').value,
-        password: document.getElementById('edit-password').value
+        password: document.getElementById('edit-password').value,
+        permisos: Array.from(document.querySelectorAll('.permiso-check:checked')).map(cb => cb.value)
     };
 
     try {
