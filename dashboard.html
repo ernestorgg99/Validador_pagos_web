@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Analítico - ValidadorPagos</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-4">
+                    <a href="admin.html" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </a>
+                    <h1 class="text-xl font-black text-gray-800 tracking-tight uppercase">Dashboard</h1>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="cargarDashboard()" class="p-2 rounded-xl text-blue-600 hover:bg-blue-50 transition" title="Actualizar">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    </button>
+                    <!-- Filtro de Días -->
+                    <select id="daysFilter" class="bg-gray-100 text-sm font-medium text-gray-700 rounded-lg border-none px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="7">Últimos 7 días</option>
+                        <option value="15">Últimos 15 días</option>
+                        <option value="30" selected>Últimos 30 días</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- KPI Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Total Hoy -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-blue-500 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Validado Hoy</p>
+                        <h2 class="text-2xl font-black text-gray-800 mt-1">Bs <span id="kpi-monto">0.00</span></h2>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-2xl text-blue-600">
+                        <i data-lucide="dollar-sign" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cantidad Hoy -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-indigo-500 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Transacciones</p>
+                        <h2 class="text-2xl font-black text-gray-800 mt-1" id="kpi-cantidad">0</h2>
+                    </div>
+                    <div class="bg-indigo-50 p-3 rounded-2xl text-indigo-600">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Tendencia (Ocupa 2 columnas) -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm lg:col-span-2">
+                <h3 class="text-lg font-black text-gray-800 mb-6 flex items-center gap-2">
+                    <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Tendencia de Pagos
+                </h3>
+                <div class="relative h-72 w-full">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Distribución Bancos -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm">
+                <h3 class="text-lg font-black text-gray-800 mb-6 flex items-center gap-2">
+                    <i data-lucide="pie-chart" class="w-5 h-5 text-purple-500"></i> Por Banco
+                </h3>
+                <div class="relative h-64 w-full flex justify-center">
+                    <canvas id="bankChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row 2 & Tables -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Top Operadores -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm">
+                <h3 class="text-lg font-black text-gray-800 mb-6 flex items-center gap-2">
+                    <i data-lucide="users" class="w-5 h-5 text-orange-500"></i> Top Operadores
+                </h3>
+                <div class="relative h-64 w-full">
+                    <canvas id="operatorChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Conciliación Diaria (Tabla rápida) -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                        <i data-lucide="clipboard-check" class="w-5 h-5 text-teal-500"></i> Conciliación Hoy
+                    </h3>
+                    <span class="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-lg" id="fecha-conciliacion">--/--/--</span>
+                </div>
+                
+                <div class="overflow-hidden rounded-xl border border-gray-100">
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-xs">
+                            <tr>
+                                <th class="px-4 py-3">Banco</th>
+                                <th class="px-4 py-3 text-right">Cant.</th>
+                                <th class="px-4 py-3 text-right">Total (Bs)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-conciliacion" class="divide-y divide-gray-100">
+                            <!-- JS llenará esto -->
+                            <tr>
+                                <td colspan="3" class="px-4 py-8 text-center text-gray-400 italic">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="config.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
