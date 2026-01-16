@@ -136,7 +136,7 @@ async function imprimirReporteDiario() {
                     <p style="margin: 2px 0;"><strong>Usuario:</strong> ${usuario}</p>
                 </div>
                 <hr style="border-top: 1px dashed black;">
-                <table style="width: 100%; font-size: 14px;">
+                <table style="width: 100%; font-size: 15px;">
                     <thead>
                         <tr style="text-align: left;">
                             <th>BCO</th>
@@ -144,15 +144,15 @@ async function imprimirReporteDiario() {
                             <th style="text-align: right;">MONTO</th>
                         </tr>
                     </thead>
-                    <tbody>  
+                    <strong><tbody>
                         ${pagos.map(p => `
                             <tr>
-                                <strong><td>${p.banco_origen.substring(0, 20)}</td></strong>
-                                <strong><td>${p.referencia}</td></strong>
-                                <strong><td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td></strong>
+                                <td>${p.banco_origen.substring(0, 20)}</td>
+                                <td>${p.referencia}</td>
+                                <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
                             </tr>
                         `).join('')}
-                    </tbody>   
+                    </tbody></strong>
                 </table>
                 <hr style="border-top: 1px dashed black;">
                 <div style="text-align: right; font-size: 14px;">
@@ -212,5 +212,6 @@ function imprimirHTML(htmlContent) {
         iframe.contentWindow.print();
     }, 500);
 }
+
 
 
