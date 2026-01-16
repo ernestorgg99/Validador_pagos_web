@@ -125,44 +125,44 @@ async function imprimirReporteDiario() {
         const totalOps = data.total_operaciones || 0;
 
         // 3. Generar HTML del Ticket
-        const ticketFont = "'Courier New', Arial-Black"; // CAMBIAR FUENTE AQUÍ: 'Arial', 'Consolas', etc.
+        const ticketFont = "'Arial Black', 'Arial', sans-serif";
 
         const ticketHtml = `
-            <div style="font-family: ${ticketFont}; width: 80mm; padding: 10px; color: black;">
-                <h2 style="text-align: center; margin: 0; font-size: 16px; font-weight: bold;">REPORTE DE CIERRE</h2>
-                <h3 style="text-align: center; margin: 0; font-size: 14px;">VALIDADOR DE PAGOS</h3>
+            <div style="font-family: ${ticketFont}; width: 80mm; padding: 10px; color: black; line-height: 1.2; text-transform: uppercase;">
+                <h2 style="text-align: center; margin: 0; font-size: 18px; font-weight: 900; border-bottom: 2px solid black; padding-bottom: 5px;">REPORTE DE CIERRE</h2>
+                <h3 style="text-align: center; margin: 5px 0; font-size: 15px; font-weight: 800;">VALIDADOR DE PAGOS</h3>
                 <br>
-                <div style="font-size: 12px;">
-                    <p style="margin: 2px 0;"><strong>Fecha:</strong> ${fechaStr}</p>
-                    <p style="margin: 2px 0;"><strong>Hora:</strong> ${hoy.toLocaleTimeString()}</p>
-                    <p style="margin: 2px 0;"><strong>Usuario:</strong> ${usuario}</p>
+                <div style="font-size: 13px; font-weight: 700;">
+                    <p style="margin: 3px 0;"><strong>Fecha:</strong> ${fechaStr}</p>
+                    <p style="margin: 3px 0;"><strong>Hora:</strong> ${hoy.toLocaleTimeString()}</p>
+                    <p style="margin: 3px 0;"><strong>Usuario:</strong> ${usuario}</p>
                 </div>
-                <hr style="border-top: 1px dashed black;">
-                <table style="width: 100%; font-size: 15px;">
+                <hr style="border-top: 2px solid black;">
+                <table style="width: 100%; font-size: 14px; font-weight: 900; border-collapse: collapse;">
                     <thead>
-                        <tr style="text-align: left;">
-                            <th>BCO</th>
+                        <tr style="text-align: left; border-bottom: 1px solid black;">
+                            <th style="padding: 5px 0;">BCO</th>
                             <th>REF</th>
                             <th style="text-align: right;">MONTO</th>
                         </tr>
                     </thead>
-                    <tbody style="font-weight: bold;">
+                    <tbody style="font-weight: 900;">
                         ${pagos.map(p => `
                             <tr>
-                                <td>${p.banco_origen.substring(0, 20)}</td>
+                                <td style="padding: 4px 0;">${p.banco_origen.substring(0, 20)}</td>
                                 <td>${p.referencia}</td>
                                 <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
-                <hr style="border-top: 1px dashed black;">
-                <div style="text-align: right; font-size: 14px;">
+                <hr style="border-top: 2px solid black;">
+                <div style="text-align: right; font-size: 16px; font-weight: 900;">
                     <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalOps}</p>
                     <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${parseFloat(totalMonto).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
                 </div>
                 <br>
-                <p style="text-align: center; font-size: 10px;">--- FIN DEL REPORTE ---</p>
+                <p style="text-align: center; font-size: 12px; font-weight: 800;">--- FIN DEL REPORTE ---</p>
                 <br><br>
             </div>
         `;
