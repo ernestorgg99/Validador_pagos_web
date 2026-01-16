@@ -125,8 +125,10 @@ async function imprimirReporteDiario() {
         const totalOps = data.total_operaciones || 0;
 
         // 3. Generar HTML del Ticket
+        const ticketFont = "'Courier New', Arial-Black"; // CAMBIAR FUENTE AQUÍ: 'Arial', 'Consolas', etc.
+
         const ticketHtml = `
-            <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; color: black;">
+            <div style="font-family: ${ticketFont}; width: 80mm; padding: 10px; color: black;">
                 <h2 style="text-align: center; margin: 0; font-size: 16px; font-weight: bold;">REPORTE DE CIERRE</h2>
                 <h3 style="text-align: center; margin: 0; font-size: 14px;">VALIDADOR DE PAGOS</h3>
                 <br>
@@ -212,7 +214,3 @@ function imprimirHTML(htmlContent) {
         iframe.contentWindow.print();
     }, 500);
 }
-
-
-
-
