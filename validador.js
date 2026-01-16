@@ -135,26 +135,26 @@ async function imprimirReporteDiario() {
                     <p style="margin: 2px 0;"><strong>Hora:</strong> ${hoy.toLocaleTimeString()}</p>
                     <p style="margin: 2px 0;"><strong>Usuario:</strong> ${usuario}</p>
                 </div>
-                <hr style="border-top: 10px dashed black;">
+                <hr style="border-top: 1px dashed black;">
                 <table style="width: 100%; font-size: 11px;">
                     <thead>
-                        <tr style="text-align: left;">
+                        <b><tr style="text-align: left;">
                             <th>BCO</th>
                             <th>REF</th>
                             <th style="text-align: right;">MONTO</th>
-                        </tr>
+                        </tr></b>
                     </thead>
                     <tbody>
                         ${pagos.map(p => `
                             <tr>
-                                <td>${p.banco_origen.substring(0, 15)}</td>
+                                <td>${p.banco_origen.substring(0, 20)}</td>
                                 <td>${p.referencia}</td>
                                 <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
-                <hr style="border-top: 10px dashed black;">
+                <hr style="border-top: 1px dashed black;">
                 <div style="text-align: right; font-size: 14px;">
                     <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalOps}</p>
                     <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${parseFloat(totalMonto).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
