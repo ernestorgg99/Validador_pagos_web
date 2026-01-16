@@ -7,6 +7,8 @@ function getAuthHeaders() {
     };
 }
 
+let usuariosCache = [];
+
 async function cargarUsuarios() {
     try {
         const token = localStorage.getItem('token');
@@ -18,9 +20,9 @@ async function cargarUsuarios() {
 
         if (!response.ok) throw new Error(response.status);
 
-        const usuarios = await response.json();
-        renderizarUsuarios(usuarios);
-        actualizarContadores(usuarios);
+        usuariosCache = await response.json();
+        renderizarUsuarios(usuariosCache);
+        actualizarContadores(usuariosCache);
     } catch (e) {
         console.error("Error al cargar usuarios", e);
         if (e.message === "401" || e.message === "403") {
@@ -31,29 +33,54 @@ async function cargarUsuarios() {
     }
 }
 
-async function cambiarPassword(userId) {
-    const nuevaClave = prompt("Ingresa la nueva contraseña para este usuario:");
-    if (!nuevaClave || nuevaClave.length < 4) {
-        if (nuevaClave !== null) alert("Contraseña inválida o muy corta (mínimo 4 caracteres).");
-        return;
-    }
+// --- LOGICA DEL MODAL DE EDICION ---
+
+function abrirModalEdicion(userId) {
+    const user = usuariosCache.find(u => u.id === userId);
+    if (!user) return;
+
+    document.getElementById('edit-id').value = user.id;
+    document.getElementById('edit-nombre').value = user.nombre_completo;
+    document.getElementById('edit-email').value = user.usuario || ""; // Usamos usuario como login/email
+    document.getElementById('edit-rol').value = user.rol;
+    document.getElementById('edit-grupo').value = user.grupo;
+    document.getElementById('edit-password').value = ""; // Limpiar password
+
+    document.getElementById('modalEditar').classList.remove('hidden');
+}
+
+document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const userId = document.getElementById('edit-id').value;
+    const payload = {
+        nombre_completo: document.getElementById('edit-nombre').value,
+        usuario: document.getElementById('edit-email').value,
+        rol: document.getElementById('edit-rol').value,
+        grupo: document.getElementById('edit-grupo').value,
+        password: document.getElementById('edit-password').value
+    };
 
     try {
-        const res = await fetch(`${API_URL}/api/admin/cambiar_password`, {
+        const res = await fetch(`${API_URL}/api/admin/usuario/${userId}/update`, {
             method: 'POST',
             headers: getAuthHeaders(),
-            body: JSON.stringify({ id: userId, password: nuevaClave })
+            body: JSON.stringify(payload)
         });
+
         if (res.ok) {
-            alert("Contraseña actualizada con éxito");
+            alert("Usuario actualizado correctamente");
+            document.getElementById('modalEditar').classList.add('hidden');
+            cargarUsuarios();
         } else {
-            alert("Error al actualizar la contraseña en el servidor.");
+            const err = await res.json();
+            alert("Error: " + (err.error || "No se pudo actualizar"));
         }
-    } catch (e) {
-        console.error("Error conectando al servidor:", e);
-        alert("Error de conexión.");
+    } catch (error) {
+        alert("Error de conexión");
     }
-}
+});
+
 
 async function aprobarUsuario(userId) {
     try {
@@ -76,27 +103,7 @@ async function suspenderUsuario(userId) {
     } catch (e) { alert("Error al suspender"); }
 }
 
-async function cambiarRol(userId, nuevoRol) {
-    try {
-        await fetch(`${API_URL}/api/admin/cambiar_rol`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ id: userId, rol: nuevoRol })
-        });
-    } catch (e) { console.error("Error al cambiar rol"); }
-}
-
-async function cambiarGrupo(userId, nuevoGrupo) {
-    try {
-        await fetch(`${API_URL}/api/admin/cambiar_grupo`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ id: userId, grupo: nuevoGrupo })
-        });
-    } catch (e) { console.error("Error al cambiar grupo"); }
-}
-
-// --- FUNCIONES DE INTERFAZ RECUPERADAS ---
+// --- FUNCIONES DE INTERFAZ ---
 function actualizarContadores(usuarios) {
     document.getElementById('count-pendientes').innerText = usuarios.filter(u => !u.esta_aprobado).length;
     document.getElementById('count-activos').innerText = usuarios.filter(u => u.esta_aprobado).length;
@@ -109,23 +116,24 @@ function renderizarUsuarios(lista) {
     container.innerHTML = "";
 
     lista.forEach(user => {
+        // Mapeo de colores para roles
+        const roleColors = {
+            'administrador': 'bg-purple-100 text-purple-700',
+            'supervisor': 'bg-blue-100 text-blue-700',
+            'operador': 'bg-gray-100 text-gray-700'
+        };
+        const badgeColor = roleColors[user.rol] || 'bg-gray-100 text-gray-600';
+
         const row = `
-            <tr class="hover:bg-blue-50/50 transition border-b border-gray-100">
+            <tr class="hover:bg-blue-50/50 transition border-b border-gray-100 group">
                 <td class="p-6">
-                    <div class="font-black text-gray-800">${user.nombre_completo}</div>
-                    <select onchange="cambiarGrupo('${user.id}', this.value)" class="text-[10px] font-bold uppercase tracking-widest bg-blue-50 text-blue-600 border-none rounded-md px-2 py-1 mt-1 cursor-pointer">
-                        <option value="General" ${user.grupo === 'General' ? 'selected' : ''}>General</option>
-                        <option value="Ventas" ${user.grupo === 'Ventas' ? 'selected' : ''}>Ventas</option>
-                        <option value="Caja" ${user.grupo === 'Caja' ? 'selected' : ''}>Caja</option>
-                        <option value="Administración" ${user.grupo === 'Administración' ? 'selected' : ''}>Administración</option>
-                    </select>
+                    <div class="font-black text-gray-800 text-sm">${user.nombre_completo}</div>
+                    <div class="text-[10px] uppercase font-bold tracking-widest text-gray-400 mt-1">${user.grupo}</div>
                 </td>
                 <td class="p-6">
-                    <select onchange="cambiarRol('${user.id}', this.value)" class="bg-gray-100 border-none rounded-lg text-xs font-black uppercase p-2 focus:ring-2 focus:ring-blue-500">
-                        <option value="operador" ${user.rol === 'operador' ? 'selected' : ''}>Operador</option>
-                        <option value="supervisor" ${user.rol === 'supervisor' ? 'selected' : ''}>Supervisor</option>
-                        <option value="administrador" ${user.rol === 'administrador' ? 'selected' : ''}>Administrador</option>
-                    </select>
+                    <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase ${badgeColor}">
+                        ${user.rol}
+                    </span>
                 </td>
                 <td class="p-6">
                     <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${user.esta_aprobado ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}">
@@ -133,14 +141,14 @@ function renderizarUsuarios(lista) {
                     </span>
                 </td>
                 <td class="p-6 text-center">
-                    <div class="flex items-center justify-center gap-3">
-                        <button onclick="cambiarPassword('${user.id}')" class="text-blue-500 hover:text-blue-700 p-2 hover:bg-blue-50 rounded-lg transition" title="Cambiar Contraseña">
-                            <i data-lucide="key" class="w-5 h-5"></i>
+                    <div class="flex items-center justify-center gap-2">
+                        <button onclick="abrirModalEdicion('${user.id}')" class="bg-white border border-gray-200 text-gray-600 p-2 rounded-xl hover:bg-blue-600 hover:text-white hover:border-blue-600 transition shadow-sm" title="Editar Usuario Completo">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
                         </button>
 
                         ${!user.esta_aprobado ?
-                `<button onclick="aprobarUsuario('${user.id}')" class="bg-green-500 text-white px-4 py-2 rounded-xl hover:bg-green-600 font-bold text-xs transition shadow-sm">Aprobar</button>` :
-                `<button onclick="suspenderUsuario('${user.id}')" class="text-red-400 hover:text-red-600 font-bold text-xs uppercase transition p-2 hover:bg-red-50 rounded-lg">Suspender</button>`
+                `<button onclick="aprobarUsuario('${user.id}')" class="bg-green-500 text-white p-2 rounded-xl hover:bg-green-600 transition shadow-sm" title="Aprobar"><i data-lucide="check" class="w-4 h-4"></i></button>` :
+                `<button onclick="suspenderUsuario('${user.id}')" class="bg-white border border-red-100 text-red-400 p-2 rounded-xl hover:bg-red-50 transition" title="Suspender"><i data-lucide="pause" class="w-4 h-4"></i></button>`
             }
                     </div>
                 </td>
@@ -152,5 +160,5 @@ function renderizarUsuarios(lista) {
     if (window.lucide) lucide.createIcons();
 }
 
-// Inicializar la carga al entrar
-cargarUsuarios();
+// Inicializar
+document.addEventListener('DOMContentLoaded', cargarUsuarios);
