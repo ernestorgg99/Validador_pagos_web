@@ -138,13 +138,13 @@ async function imprimirReporteDiario() {
                 <hr style="border-top: 1px dashed black;">
                 <table style="width: 100%; font-size: 11px;">
                     <thead>
-                        <b><tr style="text-align: left;">
+                        <tr style="text-align: left;">
                             <th>BCO</th>
                             <th>REF</th>
                             <th style="text-align: right;">MONTO</th>
-                        </tr></b>
+                        </tr>
                     </thead>
-                    <tbody>
+                    <b><tbody>
                         ${pagos.map(p => `
                             <tr>
                                 <td>${p.banco_origen.substring(0, 20)}</td>
@@ -152,7 +152,7 @@ async function imprimirReporteDiario() {
                                 <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
                             </tr>
                         `).join('')}
-                    </tbody>
+                    </tbody><b>
                 </table>
                 <hr style="border-top: 1px dashed black;">
                 <div style="text-align: right; font-size: 14px;">
@@ -212,3 +212,4 @@ function imprimirHTML(htmlContent) {
         iframe.contentWindow.print();
     }, 500);
 }
+
