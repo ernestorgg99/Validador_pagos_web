@@ -64,6 +64,17 @@ function logout() {
     localStorage.clear();
     window.location.href = "login.html";
 }
+
+/**
+ * Verifica que el usuario esté autenticado. Si no, redirige.
+ * Debe llamarse al inicio de las páginas protegidas.
+ */
+function requireAuth() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+    }
+}
 /**
  * Aplica permisos a la barra lateral (oculta opciones no autorizadas)
  */
