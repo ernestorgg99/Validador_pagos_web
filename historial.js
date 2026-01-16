@@ -1,8 +1,5 @@
-// API_URL cargado desde config.js
-let paginaActual = 1;
-let totalPaginas = 1;
-
-//PROTECCIÓN DE RUTA 
+// API_URL y funciones de utils.js disponibles globalmente
+// Verificamos auth al inicio
 if (!localStorage.getItem('usuario_nombre')) {
     window.location.href = "login.html";
 }

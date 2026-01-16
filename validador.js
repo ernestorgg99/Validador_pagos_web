@@ -83,3 +83,133 @@ function mostrarMensajeError(data) {
 
     if (window.lucide) lucide.createIcons();
 }
+
+// --- LÓGICA DE IMPRESIÓN (TICKERA 80MM) ---
+async function imprimirReporteDiario() {
+    const btn = document.getElementById('btn-imprimir');
+    // Guardar estado original si el botón existe (por seguridad)
+    let originalText = "";
+    if (btn) {
+        originalText = btn.innerHTML;
+        btn.innerHTML = `<i data-lucide="loader" class="animate-spin"></i> Generando...`;
+        btn.disabled = true;
+        if (window.lucide) lucide.createIcons();
+    }
+
+    try {
+        // 1. Obtener fecha de hoy local
+        const hoy = new Date();
+        const yyyy = hoy.getFullYear();
+        const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+        const dd = String(hoy.getDate()).padStart(2, '0');
+        const fechaStr = `${yyyy}-${mm}-${dd}`;
+
+        // 2. Fetch de TODOS los pagos de hoy (paginación alta)
+        const params = new URLSearchParams({
+            page: 1,
+            per_page: 10000, // Traer todo el día
+            fecha_inicio: fechaStr,
+            fecha_fin: fechaStr
+        });
+
+        const response = await fetch(`${API_URL}/api/pagos/listar?${params.toString()}`, {
+            headers: getAuthHeaders() // Asegurar Auth
+        });
+
+        if (!response.ok) throw new Error("Error al obtener datos");
+
+        const data = await response.json();
+        const pagos = data.pagos || [];
+
+        // 3. Calcular Totales
+        const total = pagos.reduce((acc, p) => acc + parseFloat(p.monto), 0);
+        const totalTransacciones = pagos.length;
+
+        // 4. Generar HTML del Ticket
+        const ticketHtml = `
+            <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; color: black;">
+                <h2 style="text-align: center; margin: 0; font-size: 16px; font-weight: bold;">REPORTE DE CIERRE</h2>
+                <h3 style="text-align: center; margin: 0; font-size: 14px;">VALDIADOR DE PAGOS</h3>
+                <br>
+                <div style="font-size: 12px;">
+                    <p style="margin: 2px 0;"><strong>Fecha:</strong> ${fechaStr}</p>
+                    <p style="margin: 2px 0;"><strong>Hora:</strong> ${hoy.toLocaleTimeString()}</p>
+                    <p style="margin: 2px 0;"><strong>Usuario:</strong> ${localStorage.getItem('usuario_nombre') || 'Anon'}</p>
+                </div>
+                <hr style="border-top: 1px dashed black;">
+                <table style="width: 100%; font-size: 11px;">
+                    <thead>
+                        <tr style="text-align: left;">
+                            <th>BCO</th>
+                            <th>REF</th>
+                            <th style="text-align: right;">MONTO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${pagos.map(p => `
+                            <tr>
+                                <td>${p.banco_origen.substring(0, 8)}</td>
+                                <td>${p.referencia}</td>
+                                <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <hr style="border-top: 1px dashed black;">
+                <div style="text-align: right; font-size: 14px;">
+                    <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalTransacciones}</p>
+                    <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${total.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
+                </div>
+                <br>
+                <p style="text-align: center; font-size: 10px;">--- FIN DEL REPORTE ---</p>
+                <br><br>
+            </div>
+        `;
+
+        // 5. Imprimir
+        imprimirHTML(ticketHtml);
+
+    } catch (e) {
+        console.error(e);
+        alert("Error generando el reporte: " + e.message);
+    } finally {
+        if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+}
+
+function imprimirHTML(htmlContent) {
+    // Crear iframe oculto para imprimir
+    let iframe = document.getElementById('print-frame');
+    if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.id = 'print-frame';
+        iframe.style.display = 'none';
+        document.body.appendChild(iframe);
+    }
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <html>
+        <head>
+            <title>Imprimir</title>
+            <style>
+                @page { size: 80mm auto; margin: 0; }
+                body { margin: 0; }
+            </style>
+        </head>
+        <body>${htmlContent}</body>
+        </html>
+    `);
+    doc.close();
+
+    // Esperar a que cargue y llamar a print
+    setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+    }, 500);
+}

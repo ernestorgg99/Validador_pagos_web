@@ -83,6 +83,11 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <button id="btn-imprimir" onclick="imprimirReporteDiario()" title="Imprimir Cierre del Día"
+                    class="bg-purple-600 text-white p-2 rounded-xl hover:bg-purple-700 transition shadow-lg flex items-center gap-2">
+                    <i data-lucide="printer" class="w-5 h-5"></i>
+                    <span class="text-xs font-bold uppercase hidden md:inline">Cierre</span>
+                </button>
                 <div class="text-right hidden sm:block">
                     <p class="text-[10px] font-black text-gray-400 uppercase leading-none">Conectado como</p>
                     <p id="top-username" class="font-bold text-gray-700 text-sm"></p>
