@@ -19,14 +19,33 @@ function getAuthHeaders() {
  * @returns {boolean} True si manejó el error (redirigió), False si no.
  */
 function handleAuthError(error) {
-    if (error.message === "401" || error.message === "403" || error.status === 401 || error.status === 403) {
-        console.warn("Sesión expirada o inválida.", error);
+    // 401: Token inválido o no existe -> Logout
+    if (error.message === "401" || error.status === 401) {
         alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
-        localStorage.removeItem('token'); // Limpiar token corrupto
-        window.location.href = "login.html";
+        logout();
+        return true;
+    }
+    // 403: Prohibido -> Alerta solamente (no desloguear)
+    if (error.message === "403" || error.status === 403) {
+        alert("⛔ Acceso Denegado: No tienes permiso para realizar esta acción.");
         return true;
     }
     return false;
+}
+
+/**
+ * Verifica si el usuario tiene un permiso específico
+ * @param {string} permission 
+ * @returns {boolean}
+ */
+function checkPermission(permission) {
+    const rol = localStorage.getItem('usuario_rol');
+    if (rol === 'administrador') return true;
+
+    try {
+        const perms = JSON.parse(localStorage.getItem('usuario_permisos') || '[]');
+        return perms.includes(permission) || perms.includes('all');
+    } catch (e) { return false; }
 }
 
 /**
@@ -45,3 +64,26 @@ function logout() {
     localStorage.clear();
     window.location.href = "login.html";
 }
+/**
+ * Aplica permisos a la barra lateral (oculta opciones no autorizadas)
+ */
+function applySidebarPermissions() {
+    const linkHistorial = document.getElementById('link-historial');
+    const linkReportes = document.getElementById('link-reportes');
+
+    // Ocultar Historial si no tiene 'ver_historial'
+    // Nota: 'administrador' pasa checkPermission automáticamente
+    if (linkHistorial && !checkPermission('ver_historial')) {
+        linkHistorial.style.display = 'none';
+    }
+
+    // Ocultar Reportes si no tiene 'ver_reportes'
+    if (linkReportes && !checkPermission('ver_reportes')) {
+        linkReportes.style.display = 'none';
+    }
+}
+
+// Ejecutar al cargar cualquier página
+document.addEventListener('DOMContentLoaded', () => {
+    applySidebarPermissions();
+});

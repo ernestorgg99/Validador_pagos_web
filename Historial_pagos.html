@@ -12,6 +12,23 @@
 <body class="bg-gray-100 min-h-screen">
 
     <nav class="bg-blue-700 text-white p-6 shadow-xl">
+        <script>
+            // Guard: Verificar permiso antes de renderizar nada importante
+            // Se asume que utils.js se carga, pero como está al final, 
+            // esta verificación básica inline ayuda a prevenir flash de contenido si utils.js se moviera arriba.
+            // Para consistencia y uso de checkPermission, idealmente utils va en head o esto va al final.
+            // Dado que utils.js está en el body end, haremos el check al cargar DOM en utils o copiamos lógica simple.
+
+            // Lógica simple inline para bloqueo rápido:
+            (function () {
+                const rol = localStorage.getItem('usuario_rol');
+                const perms = localStorage.getItem('usuario_permisos') || '[]';
+                if (rol !== 'administrador' && !perms.includes('ver_historial') && !perms.includes('all')) {
+                    alert("Acceso Restringido: No tienes permiso para ver el historial.");
+                    window.location.href = 'index.html';
+                }
+            })();
+        </script>
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-4">
                 <a href="index.html" class="bg-white/20 p-2 rounded-lg hover:bg-white/30 transition">

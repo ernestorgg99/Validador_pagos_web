@@ -11,6 +11,16 @@
 
 <body class="bg-gray-100 min-h-screen p-6 md:p-12">
     <div class="max-w-6xl mx-auto">
+        <script>
+            (function () {
+                const rol = localStorage.getItem('usuario_rol');
+                const perms = localStorage.getItem('usuario_permisos') || '[]';
+                if (rol !== 'administrador' && !perms.includes('ver_reportes') && !perms.includes('all')) {
+                    alert("Acceso Restringido: No tienes permiso para ver reportes.");
+                    window.location.href = 'index.html';
+                }
+            })();
+        </script>
         <div class="flex justify-between items-center mb-10">
             <div>
                 <button onclick="window.location.href='index.html'"
