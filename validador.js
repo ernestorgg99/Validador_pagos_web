@@ -97,46 +97,45 @@ async function imprimirReporteDiario() {
     }
 
     try {
-        // 1. Obtener fecha de hoy local
+        // 1. Obtener datos del usuario y fecha
+        const usuario = localStorage.getItem('usuario_nombre');
+        if (!usuario) { alert("Usuario no identificado"); return; }
+
         const hoy = new Date();
         const yyyy = hoy.getFullYear();
         const mm = String(hoy.getMonth() + 1).padStart(2, '0');
         const dd = String(hoy.getDate()).padStart(2, '0');
         const fechaStr = `${yyyy}-${mm}-${dd}`;
 
-        // 2. Fetch de TODOS los pagos de hoy (paginación alta)
+        // 2. Fetch al endpoint específico de CIERRE
         const params = new URLSearchParams({
-            page: 1,
-            per_page: 10000, // Traer todo el día
-            fecha_inicio: fechaStr,
-            fecha_fin: fechaStr
+            usuario: usuario,
+            fecha: fechaStr
         });
 
-        const response = await fetch(`${API_URL}/api/pagos/listar?${params.toString()}`, {
+        const response = await fetch(`${API_URL}/api/pagos/reporte_cierre?${params.toString()}`, {
             headers: getAuthHeaders() // Asegurar Auth
         });
 
-        if (!response.ok) throw new Error("Error al obtener datos");
+        if (!response.ok) throw new Error("Error al obtener datos del cierre");
 
         const data = await response.json();
         const pagos = data.pagos || [];
+        const totalMonto = data.total_monto || 0;
+        const totalOps = data.total_operaciones || 0;
 
-        // 3. Calcular Totales
-        const total = pagos.reduce((acc, p) => acc + parseFloat(p.monto), 0);
-        const totalTransacciones = pagos.length;
-
-        // 4. Generar HTML del Ticket
+        // 3. Generar HTML del Ticket
         const ticketHtml = `
             <div style="font-family: 'Courier New', monospace; width: 80mm; padding: 10px; color: black;">
                 <h2 style="text-align: center; margin: 0; font-size: 16px; font-weight: bold;">REPORTE DE CIERRE</h2>
-                <h3 style="text-align: center; margin: 0; font-size: 14px;">VALDIADOR DE PAGOS</h3>
+                <h3 style="text-align: center; margin: 0; font-size: 14px;">VALIDADOR DE PAGOS</h3>
                 <br>
                 <div style="font-size: 12px;">
                     <p style="margin: 2px 0;"><strong>Fecha:</strong> ${fechaStr}</p>
                     <p style="margin: 2px 0;"><strong>Hora:</strong> ${hoy.toLocaleTimeString()}</p>
-                    <p style="margin: 2px 0;"><strong>Usuario:</strong> ${localStorage.getItem('usuario_nombre') || 'Anon'}</p>
+                    <p style="margin: 2px 0;"><strong>Usuario:</strong> ${usuario}</p>
                 </div>
-                <hr style="border-top: 1px dashed black;">
+                <hr style="border-top: 10px dashed black;">
                 <table style="width: 100%; font-size: 11px;">
                     <thead>
                         <tr style="text-align: left;">
@@ -148,17 +147,17 @@ async function imprimirReporteDiario() {
                     <tbody>
                         ${pagos.map(p => `
                             <tr>
-                                <td>${p.banco_origen.substring(0, 8)}</td>
+                                <td>${p.banco_origen.substring(0, 15)}</td>
                                 <td>${p.referencia}</td>
                                 <td style="text-align: right;">${parseFloat(p.monto).toFixed(2)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
                 </table>
-                <hr style="border-top: 1px dashed black;">
+                <hr style="border-top: 10px dashed black;">
                 <div style="text-align: right; font-size: 14px;">
-                    <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalTransacciones}</p>
-                    <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${total.toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
+                    <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalOps}</p>
+                    <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${parseFloat(totalMonto).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
                 </div>
                 <br>
                 <p style="text-align: center; font-size: 10px;">--- FIN DEL REPORTE ---</p>
@@ -166,7 +165,7 @@ async function imprimirReporteDiario() {
             </div>
         `;
 
-        // 5. Imprimir
+        // 4. Imprimir
         imprimirHTML(ticketHtml);
 
     } catch (e) {
