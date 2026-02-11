@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="referrer" content="same-origin"> <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="same-origin">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso - Validador Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -42,33 +43,18 @@
 
         <div class="relative flex py-8 items-center">
             <div class="flex-grow border-t border-gray-200"></div>
-            <span class="flex-shrink mx-4 text-gray-400 font-bold text-[10px] uppercase tracking-widest">O continúa con</span>
+            <span class="flex-shrink mx-4 text-gray-400 font-bold text-[10px] uppercase tracking-widest">O continúa
+                con</span>
             <div class="flex-grow border-t border-gray-200"></div>
         </div>
 
-        <div id="g_id_onload"
-             data-client_id="703445030280-jk55itud2h9gmk6c9hoakgjntetcctaq.apps.googleusercontent.com"
-             data-context="signin"
-             data-ux_mode="popup"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
-        </div>
-
-        <div class="flex justify-center">
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="pill"
-                 data-theme="outline"
-                 data-text="signin_with"
-                 data-size="large"
-                 data-logo_alignment="left">
-            </div>
-        </div>
+        <div id="buttonDiv" class="flex justify-center"></div>
 
         <p class="text-center mt-8 text-gray-500 font-bold text-sm">
             ¿No tienes cuenta? <br>
             <a href="signup.html"
-                class="text-blue-600 hover:underline font-black uppercase text-xs tracking-tight">Solicita acceso aquí</a>
+                class="text-blue-600 hover:underline font-black uppercase text-xs tracking-tight">Solicita acceso
+                aquí</a>
         </p>
     </div>
 
@@ -76,4 +62,6 @@
     <script src="utils.js"></script>
     <script src="login.auth.js"></script>
 </body>
+
+
 </html>
