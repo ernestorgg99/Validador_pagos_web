@@ -35,24 +35,52 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 // --- LOGIN CON GOOGLE ---
-async function handleCredentialResponse(response) {
+async function handleCredentialResponse(googleResponse) {
     const msgDiv = document.getElementById('mensaje');
+
+    // 1. Decodificar el token para uso local (opcional)
+    // Usamos 'googleResponse.credential' que es el JWT
+    const responsePayload = decodeJwtResponse(googleResponse.credential);
+    console.log("ID: " + responsePayload.sub);
+    console.log('Full Name: ' + responsePayload.name);
+
     try {
+        // 2. Feedback visual
+        msgDiv.className = "mt-6 p-4 rounded-2xl text-center font-bold text-sm bg-blue-50 text-blue-700 border-2 border-blue-100";
+        msgDiv.innerText = "Verificando con Google...";
+        msgDiv.classList.remove('hidden');
+
+        // 3. Petición al backend en Railway
         const res = await fetch(`${API_URL}/api/auth/google`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_token: response.credential })
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                token: googleResponse.credential // Enviamos el JWT crudo
+            })
         });
 
         const data = await res.json();
+
+        // 4. Usar tu función procesarRespuesta que ya tienes definida abajo
         procesarRespuesta(res, data, msgDiv);
 
     } catch (error) {
         console.error("Error en Google Auth:", error);
-        mostrarError(msgDiv, "Error de comunicación con host.");
+        mostrarError(msgDiv, "Error de comunicación: revisa la conexión (CORS).");
     }
 }
 
+// Función auxiliar para decodificar el token de Google (opcional, para uso visual)
+function decodeJwtResponse(token) {
+    let base64Url = token.split('.')[1];
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    let jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+}
 // --- UTILIDADES ---
 function procesarRespuesta(res, data, msgDiv) {
     if (res.ok) {
