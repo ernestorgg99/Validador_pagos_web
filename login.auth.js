@@ -35,29 +35,25 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 });
 
 // --- LOGIN CON GOOGLE ---
-async function handleCredentialResponse(googleResponse) {
+async function handleCredentialResponse(googleResponse) { // Cambiado a googleResponse
     const msgDiv = document.getElementById('mensaje');
 
-    // 1. Decodificar el token para uso local (opcional)
-    // Usamos 'googleResponse.credential' que es el JWT
+    // Decodificar el token para uso visual (aquí estaba el error de nombre)
     const responsePayload = decodeJwtResponse(googleResponse.credential);
     console.log("ID: " + responsePayload.sub);
     console.log('Full Name: ' + responsePayload.name);
 
     try {
-        // 2. Feedback visual
+        // Mostrar estado de carga usando el nombre decodificado
         msgDiv.className = "mt-6 p-4 rounded-2xl text-center font-bold text-sm bg-blue-50 text-blue-700 border-2 border-blue-100";
-        msgDiv.innerText = "Verificando con Google...";
+        msgDiv.innerText = `Verificando cuenta de ${responsePayload.name}...`;
         msgDiv.classList.remove('hidden');
 
-        // 3. Petición al backend en Railway
         const res = await fetch(`${API_URL}/api/auth/google`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                token: googleResponse.credential // Enviamos el JWT crudo
+                token: googleResponse.credential // Enviamos el token crudo
             })
         });
 
