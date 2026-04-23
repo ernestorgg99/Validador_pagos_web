@@ -103,7 +103,7 @@ function mostrarError(elem, texto) {
 // Configuración de Google al cargar la ventana
 window.onload = function () {
     google.accounts.id.initialize({
-        client_id: "703445030280-m4kghs6j8us6b3bfknb2pr4nq17ncm2d.apps.googleusercontent.com",
+        client_id: "703445030280-u4ghgkh7rug3n5lc18ndf05ktmmurqoh.apps.googleusercontent.com",
         callback: handleCredentialResponse
     });
     google.accounts.id.renderButton(
