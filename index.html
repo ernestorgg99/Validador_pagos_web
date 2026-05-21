@@ -38,26 +38,32 @@
                 <i data-lucide="home" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Inicio
             </a>
 
-            <a id="link-historial" href="Historial_pagos.html"
-                class="flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group">
-                <i data-lucide="list" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Historial Pagos
-            </a>
-
-            <a id="link-reportes" href="reporte_usuarios.html"
-                class="flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group">
-                <i data-lucide="list" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Reporte por Usuarios
-            </a>
-
-
             <a id="sb-admin-link" href="admin.html"
                 class="hidden flex items-center gap-4 p-4 hover:bg-blue-700 rounded-2xl transition font-bold group border-2 border-blue-600">
                 <i data-lucide="shield-alert" class="w-5 h-5 opacity-70 group-hover:opacity-100"></i> Panel Admin
             </a>
 
             <div class="pt-4 border-t border-blue-700">
-                <p class="text-[10px] font-black text-blue-400 uppercase tracking-widest px-4 mb-2">Próximamente</p>
-                <div class="flex items-center gap-4 p-4 opacity-40 cursor-not-allowed italic text-sm">
-                    <i data-lucide="pie-chart" class="w-5 h-5"></i> Reportes Avanzados
+                <button onclick="toggleReportes()"
+                    class="flex items-center gap-4 w-full p-4 hover:bg-blue-700 rounded-2xl transition font-bold group text-left">
+                    <i data-lucide="pie-chart" class="w-5 h-5 opacity-70 group-hover:opacity-100 shrink-0"></i>
+                    <span class="flex-1">Reportes Avanzados</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform duration-200" id="reportes-arrow"></i>
+                </button>
+
+                <div id="reportes-submenu" class="space-y-1">
+                    <a id="link-dashboard" href="dashboard.html"
+                        class="flex items-center gap-4 p-3 pl-8 hover:bg-blue-700 rounded-2xl transition font-bold group text-sm">
+                        <i data-lucide="bar-chart-2" class="w-4 h-4 opacity-70 shrink-0"></i> Dashboard
+                    </a>
+                    <a id="link-historial" href="Historial_pagos.html"
+                        class="flex items-center gap-4 p-3 pl-8 hover:bg-blue-700 rounded-2xl transition font-bold group text-sm">
+                        <i data-lucide="clock" class="w-4 h-4 opacity-70 shrink-0"></i> Historial Pagos
+                    </a>
+                    <a id="link-reportes" href="reporte_usuarios.html"
+                        class="flex items-center gap-4 p-3 pl-8 hover:bg-blue-700 rounded-2xl transition font-bold group text-sm">
+                        <i data-lucide="file-text" class="w-4 h-4 opacity-70 shrink-0"></i> Reporte por Usuarios
+                    </a>
                 </div>
             </div>
         </nav>
@@ -168,11 +174,12 @@
 
     <div id="successView"
         class="fixed inset-0 bg-green-600 z-40 hidden flex flex-col items-center justify-center text-white p-6">
-        <div class="bg-white/20 p-10 rounded-full mb-10">
+        <div class="bg-white/20 p-10 rounded-full mb-6">
             <i data-lucide="check-circle" class="w-40 h-40"></i>
         </div>
-        <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight uppercase">Pago Validado<br>con éxito
+        <h1 class="text-5xl md:text-7xl font-black text-center mb-4 leading-tight uppercase">Pago Validado<br>con éxito
         </h1>
+        <p id="success-monto-usd" class="text-2xl font-black text-white/80 mb-10"></p>
         <button onclick="window.location.reload()"
             class="bg-white text-green-700 px-16 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition-all uppercase">
             Continuar
@@ -202,6 +209,13 @@
             window.location.href = "login.html";
         }
 
+        function toggleReportes() {
+            const sub = document.getElementById('reportes-submenu');
+            const arrow = document.getElementById('reportes-arrow');
+            sub.classList.toggle('hidden');
+            arrow.style.transform = sub.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+        }
+
         lucide.createIcons();
 
     </script>
@@ -214,8 +228,9 @@
     <div class="bg-white/20 p-10 rounded-full mb-10">
         <i data-lucide="check-circle" class="w-40 h-40"></i>
     </div>
-    <h1 class="text-5xl md:text-7xl font-black text-center mb-10 leading-tight">SU PAGO HA SIDO<br>VALIDADO CON ÉXITO
+    <h1 class="text-5xl md:text-7xl font-black text-center mb-4 leading-tight">SU PAGO HA SIDO<br>VALIDADO CON ÉXITO
     </h1>
+    <p class="text-2xl font-black text-white/80 mb-10" id="success-monto-usd-2"></p>
     <button onclick="window.location.reload()"
         class="bg-white text-green-700 px-16 py-6 rounded-[2rem] font-black text-2xl shadow-2xl hover:scale-105 transition-all uppercase">
         Continuar

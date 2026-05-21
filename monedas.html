@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Moneda / Tasas BCV - Panel Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-xl min-h-screen flex flex-col shrink-0">
+        <div class="p-4 pb-0">
+            <button onclick="window.location.href='index.html'"
+                class="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-100 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="arrow-left" aria-hidden="true" class="lucide lucide-arrow-left w-5 h-5"><path d="m12 19-7-7 7-7"></path><path d="M19 12H5"></path></svg> Volver
+            </button>
+        </div>
+        <div class="p-6 border-b border-gray-100">
+            <h1 class="text-lg font-black text-gray-800 uppercase tracking-tighter">Panel Admin</h1>
+            <p class="text-[10px] font-bold text-blue-600 uppercase">Validador de Pagos</p>
+        </div>
+
+        <nav class="flex-1 p-3 space-y-1">
+            <a href="admin.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition text-gray-500 hover:bg-gray-100">
+                <i data-lucide="users" class="w-5 h-5"></i> Usuarios
+            </a>
+            <a href="monedas.html"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition bg-teal-50 text-teal-700">
+                <i data-lucide="dollar-sign" class="w-5 h-5"></i> Moneda / Tasas
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6 overflow-y-auto">
+        <div class="max-w-6xl mx-auto">
+
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-3xl font-black text-gray-800 uppercase tracking-tighter">Moneda / Tasas BCV</h1>
+                    <p class="text-teal-600 font-bold">Gestión de Tipo de Cambio</p>
+                </div>
+                <button onclick="forzarActualizacion()"
+                    class="bg-teal-600 text-white px-6 py-3 rounded-xl hover:bg-teal-700 transition flex items-center gap-2 font-bold text-sm shadow-lg shadow-teal-200">
+                    <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                    Actualizar desde BCV
+                </button>
+            </div>
+
+            <!-- Card Tasa del Día -->
+            <div class="bg-white rounded-[2rem] shadow-sm p-6 mb-6 border-l-8 border-teal-500">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-black text-gray-400 uppercase">Tasa del Día</p>
+                        <h2 class="text-4xl font-black text-gray-800 mt-1">
+                            <span id="tasa-hoy-valor">--</span>
+                            <span class="text-2xl text-gray-400">Bs/USD</span>
+                        </h2>
+                        <p class="text-sm text-gray-500 mt-1" id="tasa-hoy-detalle">--</p>
+                    </div>
+                    <div class="bg-teal-50 p-4 rounded-2xl text-teal-600">
+                        <i data-lucide="globe" class="w-8 h-8"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Historial -->
+            <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden">
+                <div class="p-6 pb-0 flex justify-between items-center">
+                    <h3 class="text-lg font-black text-gray-800">Historial de Tasas</h3>
+                    <button onclick="abrirModalCrear()"
+                        class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition flex items-center gap-2 text-xs font-bold shadow-sm">
+                        <i data-lucide="plus" class="w-4 h-4"></i>
+                        Nueva Tasa
+                    </button>
+                </div>
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b-2 border-gray-100">
+                            <th class="p-6 text-xs font-black text-blue-600 uppercase w-1/3">Fecha</th>
+                            <th class="p-6 text-xs font-black text-blue-600 uppercase w-1/3">Tasa (Bs/USD)</th>
+                            <th class="p-6 text-xs font-black text-blue-600 uppercase w-1/3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-tasas" class="divide-y divide-gray-100">
+                        <tr>
+                            <td colspan="3" class="p-12 text-center text-gray-400 italic">Cargando tasas...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Modal Tasa -->
+    <div id="modalTasa"
+        class="fixed inset-0 bg-black/50 hidden flex items-center justify-center z-50 backdrop-blur-sm">
+        <div class="bg-white rounded-3xl p-8 w-full max-w-sm shadow-2xl transform transition-all scale-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-black text-gray-800" id="modal-tasa-titulo">Nueva Tasa</h3>
+                <button onclick="cerrarModalTasa()"
+                    class="bg-gray-100 p-2 rounded-full hover:bg-gray-200 transition">
+                    <i data-lucide="x" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+
+            <form id="formTasa" class="space-y-4">
+                <input type="hidden" id="tasa-edit-fecha-original">
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha</label>
+                    <input type="date" id="tasa-fecha"
+                        class="w-full bg-gray-50 border-none rounded-xl px-4 py-3 font-semibold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                        required>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tasa (Bs/USD)</label>
+                    <input type="number" step="0.0001" id="tasa-valor" placeholder="Ej: 517.96"
+                        class="w-full bg-gray-50 border-none rounded-xl px-4 py-3 font-semibold text-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
+                        required>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-teal-600 text-white font-black py-4 rounded-xl hover:bg-teal-700 transition shadow-lg shadow-teal-200">
+                    GUARDAR TASA
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="utils.js"></script>
+    <script src="monedas.js"></script>
+</body>
+</html>

@@ -31,6 +31,11 @@ form.addEventListener('submit', async (e) => {
 
         if (response.ok) {
             // ÉXITO: Pantalla verde
+            const resData = Array.isArray(data) ? data[0] : data;
+            const montoUsdEl = document.getElementById('success-monto-usd');
+            if (resData.monto_usd && montoUsdEl) {
+                montoUsdEl.innerText = `$ ${parseFloat(resData.monto_usd).toFixed(2)} @ ${resData.tasa_bcv.toFixed(2)} Bs/USD`;
+            }
             successView.classList.remove('hidden');
             if (window.lucide) lucide.createIcons();
         } else {
@@ -65,7 +70,8 @@ function mostrarMensajeError(data) {
                     <p><span class="font-black">VALIDADO POR:</span> ${data.usuario || 'N/A'}</p>
                     <p><span class="font-black">FECHA Y HORA:</span> ${data.fecha || 'N/A'}</p>
                     <p><span class="font-black">REFERENCIA:</span> ${data.referencia || 'N/A'}</p>
-                    <p><span class="font-black">MONTO:</span> Bs ${data.monto || 'N/A'}</p>
+                    <p><span class="font-black">MONTO:</span> Bs ${data.monto || 'N/A'} ${data.monto_usd ? `| $ ${parseFloat(data.monto_usd).toFixed(2)}` : ''}</p>
+                    <p><span class="font-black">TASA BCV:</span> ${data.tasa_bcv ? data.tasa_bcv.toFixed(2) + ' Bs/USD' : 'N/A'}</p>
                     <p><span class="font-black">BANCO ORIGEN:</span> ${data.banco_origen || 'N/A'}</p>
                     </div>
             </div>
@@ -159,9 +165,13 @@ async function imprimirReporteDiario() {
                 <hr style="border-top: 2px solid black;">
                 <div style="text-align: right; font-size: 16px; font-weight: 900;">
                     <p style="margin: 5px 0;"><strong>CANTIDAD:</strong> ${totalOps}</p>
-                    <p style="margin: 5px 0;"><strong>TOTAL:</strong> ${parseFloat(totalMonto).toLocaleString('es-VE', { minimumFractionDigits: 2 })} Bs.</p>
+                    <p style="margin: 5px 0;"><strong>TOTAL BS:</strong> ${parseFloat(totalMonto).toLocaleString('es-VE', { minimumFractionDigits: 2 })}</p>
+                    <p style="margin: 5px 0;"><strong>TOTAL USD:</strong> $ ${parseFloat(data.total_monto_usd || 0).toFixed(2)}</p>
                 </div>
                 <br>
+                <div style="text-align: center; font-size: 13px; font-weight: 800;">
+                    <p style="margin: 5px 0;">TASA BCV: ${parseFloat(data.tasa_bcv || 0).toFixed(2)} Bs/USD</p>
+                </div>
                 <p style="text-align: center; font-size: 12px; font-weight: 800;">--- FIN DEL REPORTE ---</p>
                 <br><br>
             </div>

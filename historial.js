@@ -54,10 +54,14 @@ function renderizar(pagos) {
         const signo = esEgreso ? "-" : "+";
         const fechaObj = new Date(p.fecha_hora);
 
+        const usd = p.monto_usd ? `$ ${parseFloat(p.monto_usd).toFixed(2)}` : '--';
+        const tasaInfo = p.tasa_bcv ? `@ ${p.tasa_bcv.toFixed(2)}` : '';
+
         tbody.innerHTML += `
             <tr class="hover:bg-blue-50 transition-colors border-b">
                 <td class="p-6 font-bold text-gray-700">${p.banco_origen}</td>
-                <td class="p-6 font-black ${colorMonto}">${signo} ${parseFloat(p.monto).toFixed(2)} Bs.</td>
+                <td class="p-6 font-black ${colorMonto}">${signo} ${parseFloat(p.monto).toFixed(2)}</td>
+                <td class="p-6 font-black text-teal-600">${usd} <span class="text-[10px] text-gray-400">${tasaInfo}</span></td>
                 <td class="p-6 font-mono text-gray-500 font-bold">${p.referencia}</td>
                 <td class="p-6 text-gray-500 text-sm">${fechaObj.toLocaleString()}</td>
             </tr>`;
@@ -68,6 +72,7 @@ function renderizar(pagos) {
                     <div class="flex flex-col">
                         <span class="text-xs font-black text-blue-500 uppercase">${p.banco_origen}</span>
                         <span class="text-xl font-black ${colorMonto}">${signo} ${parseFloat(p.monto).toFixed(2)} Bs.</span>
+                        <span class="text-sm font-black text-teal-600">${usd}</span>
                         <span class="text-xs font-mono text-gray-400">Ref: ${p.referencia}</span>
                     </div>
                     <div class="text-[10px] text-gray-400 font-bold">${fechaObj.toLocaleDateString()}</div>

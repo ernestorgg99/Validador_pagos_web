@@ -1,11 +1,8 @@
-// API_URL cargado desde config.js
-
 document.addEventListener('DOMContentLoaded', () => {
     cargarDatosReporte();
     lucide.createIcons();
 });
 
-// --- NUEVA FUNCIÓN PARA CERRAR EL MODAL ---
 function cerrarModal() {
     document.getElementById('modalDetalle').classList.add('hidden');
 }
@@ -18,19 +15,13 @@ async function cargarDatosReporte() {
             return;
         }
 
-        // Pedimos 2000 registros para asegurar que el reporte cubra toda la data
-        // Idealmente el backend debería tener un endpoint de "estadísticas" para no traer toda la data cruda,
-        // pero para 790 registros esto funciona perfecto y es rápido.
-        const response = await fetch(`${API_URL}/api/admin/historial_completo?per_page=2000`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+        const response = await fetch(`${API_URL}/api/reports/user-performance`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) {
             if (response.status === 401 || response.status === 403) {
-                console.error("Auth error:", response.status);
-                localStorage.removeItem('token'); // Limpiar token inválido
+                localStorage.removeItem('token');
                 alert("Sesión expirada. Por favor, inicia sesión nuevamente.");
                 window.location.href = 'login.html';
                 return;
@@ -39,54 +30,30 @@ async function cargarDatosReporte() {
         }
 
         const data = await response.json();
-        console.log("Datos recibidos:", data); // Debug para el usuario
 
-        let pagos = [];
-        if (Array.isArray(data)) {
-            // Soporte para backend antiguo
-            pagos = data;
-        } else if (data.pagos && Array.isArray(data.pagos)) {
-            // Soporte para backend nuevo con paginación
-            pagos = data.pagos;
-        } else {
-            console.error("Formato de datos no reconocido:", data);
-            throw new TypeError("El formato de respuesta del servidor no es válido.");
-        }
-
-        document.getElementById('total-general').innerText = pagos.length;
-
-        const resumen = pagos.reduce((acc, pago) => {
-            const user = pago.usuario_nombre || 'Sistema';
-            if (!acc[user]) acc[user] = [];
-            acc[user].push(pago);
-            return acc;
-        }, {});
-
-        // --- NUEVA LÓGICA: Convertir a array y ordenar de mayor a menor ---
-        const usuariosOrdenados = Object.keys(resumen).sort((a, b) => {
-            return resumen[b].length - resumen[a].length;
-        });
+        document.getElementById('total-general').innerText = data.total_validaciones || 0;
 
         const container = document.getElementById('fichasContainer');
         container.innerHTML = "";
 
-        usuariosOrdenados.forEach(user => {
-            const cant = resumen[user].length;
+        (data.users || []).forEach(user => {
             const ficha = document.createElement('div');
-            // Clases actualizadas para ser más compactas en móvil (p-4 en lugar de p-8)
             ficha.className = "bg-white p-4 md:p-6 rounded-[1.5rem] md:rounded-[2.5rem] shadow-md hover:shadow-xl transition-all cursor-pointer border-b-4 md:border-b-8 border-blue-600 group";
-            ficha.onclick = () => mostrarDetalle(user, resumen[user]);
-
+            ficha.onclick = () => mostrarDetalle(user.usuario);
             ficha.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
                     <div class="bg-blue-50 text-blue-600 p-2 md:p-3 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition">
                         <i data-lucide="user" class="w-4 h-4 md:w-6 md:h-6"></i>
                     </div>
-                    <span class="text-2xl md:text-4xl font-black text-gray-800">${cant}</span>
+                    <span class="text-2xl md:text-4xl font-black text-gray-800">${user.total_validaciones}</span>
                 </div>
                 <div>
                     <p class="text-[8px] md:text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">Usuario</p>
-                    <h4 class="text-sm md:text-lg font-black text-gray-700 uppercase truncate">${user}</h4>
+                    <h4 class="text-sm md:text-lg font-black text-gray-700 uppercase truncate">${user.usuario}</h4>
+                </div>
+                <div class="mt-2 flex justify-between text-[10px] font-bold">
+                    <span class="text-blue-600">Bs ${user.total_monto_bs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}</span>
+                    ${user.total_monto_usd != null ? `<span class="text-teal-600">$${user.total_monto_usd.toFixed(2)}</span>` : ''}
                 </div>
             `;
             container.appendChild(ficha);
@@ -96,7 +63,8 @@ async function cargarDatosReporte() {
         console.error("Error cargando reporte:", error);
     }
 }
-function mostrarDetalle(usuario, listaPagos) {
+
+async function mostrarDetalle(usuario) {
     const modal = document.getElementById('modalDetalle');
     document.getElementById('det-user-name').innerText = usuario;
     modal.classList.remove('hidden');
@@ -104,7 +72,6 @@ function mostrarDetalle(usuario, listaPagos) {
     const tabla = document.getElementById('listaDetalleBody');
     const filtroInput = document.getElementById('filtroFecha');
 
-    // Resetear el filtro al abrir un usuario nuevo
     filtroInput.value = "";
 
     const opcionesFecha = {
@@ -113,15 +80,32 @@ function mostrarDetalle(usuario, listaPagos) {
     };
     const formateador = new Intl.DateTimeFormat('es-VE', opcionesFecha);
 
+    let pagosCache = [];
+
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_URL}/api/admin/historial_completo?per_page=500&usuario=${encodeURIComponent(usuario)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error("Error al cargar detalle");
+        const data = await response.json();
+        pagosCache = data.pagos || [];
+    } catch (e) {
+        console.error("Error cargando detalle de usuario:", e);
+        tabla.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-red-400 italic">Error al cargar datos</td></tr>`;
+        return;
+    }
+
     const pintarTabla = (datos) => {
         if (datos.length === 0) {
-            tabla.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-400 italic">No hay pagos para esta fecha</td></tr>`;
+            tabla.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-gray-400 italic">No hay pagos para esta fecha</td></tr>`;
             return;
         }
 
         tabla.innerHTML = datos.map(p => {
             const fechaObj = new Date(p.fecha_validacion || p.fecha);
             const fechaFormateada = formateador.format(fechaObj);
+            const usd = p.monto_usd ? `$ ${parseFloat(p.monto_usd).toFixed(2)}` : '--';
 
             return `
                 <tr class="border-b border-gray-50 hover:bg-gray-50 transition">
@@ -133,25 +117,28 @@ function mostrarDetalle(usuario, listaPagos) {
                             Bs ${parseFloat(p.monto).toLocaleString('es-VE', { minimumFractionDigits: 2 })}
                         </span>
                     </td>
+                    <td class="py-4 text-right">
+                        <span class="text-teal-600 font-black px-3 py-1 bg-teal-50 rounded-full">
+                            ${usd}
+                        </span>
+                    </td>
                 </tr>
             `;
         }).join('');
     };
 
-    // --- LÓGICA DEL FILTRO DE FECHA RESTAURADA ---
     filtroInput.onchange = (e) => {
-        const fechaSeleccionada = e.target.value; // Formato YYYY-MM-DD
+        const fechaSeleccionada = e.target.value;
         if (!fechaSeleccionada) {
-            pintarTabla(listaPagos);
+            pintarTabla(pagosCache);
             return;
         }
-
-        const filtrados = listaPagos.filter(p => {
+        const filtrados = pagosCache.filter(p => {
             const f = p.fecha_validacion || p.fecha;
             return f.startsWith(fechaSeleccionada);
         });
         pintarTabla(filtrados);
     };
 
-    pintarTabla(listaPagos);
+    pintarTabla(pagosCache);
 }

@@ -19,7 +19,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center gap-4">
-                    <a href="admin.html" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition">
+                    <a href="index.html" class="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </a>
                     <h1 class="text-xl font-black text-gray-800 tracking-tight uppercase">Dashboard</h1>
@@ -28,12 +28,6 @@
                     <button onclick="cargarDashboard()" class="p-2 rounded-xl text-blue-600 hover:bg-blue-50 transition" title="Actualizar">
                         <i data-lucide="refresh-cw" class="w-5 h-5"></i>
                     </button>
-                    <!-- Filtro de Días -->
-                    <select id="daysFilter" class="bg-gray-100 text-sm font-medium text-gray-700 rounded-lg border-none px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="7">Últimos 7 días</option>
-                        <option value="15">Últimos 15 días</option>
-                        <option value="30" selected>Últimos 30 días</option>
-                    </select>
                 </div>
             </div>
         </div>
@@ -55,7 +49,34 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- USD Hoy -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-emerald-500 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Validado Hoy</p>
+                        <h2 class="text-2xl font-black text-gray-800 mt-1">$ <span id="kpi-monto-usd">0.00</span></h2>
+                    </div>
+                    <div class="bg-emerald-50 p-3 rounded-2xl text-emerald-600">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasa BCV Hoy -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-teal-500 hover:shadow-md transition">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Tasa BCV</p>
+                        <h2 class="text-2xl font-black text-gray-800 mt-1"><span id="kpi-tasa">--</span> Bs/USD</h2>
+                        <p class="text-[11px] text-gray-500 mt-2" id="kpi-tasa-fuente">Fuente: --</p>
+                    </div>
+                    <div class="bg-teal-50 p-3 rounded-2xl text-teal-600">
+                        <i data-lucide="globe" class="w-5 h-5"></i>
+                    </div>
+                </div>
+            </div>
+
             <!-- Cantidad Hoy -->
             <div class="bg-white p-6 rounded-3xl shadow-sm border-l-4 border-indigo-500 hover:shadow-md transition">
                 <div class="flex justify-between items-start">
@@ -74,9 +95,26 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Tendencia (Ocupa 2 columnas) -->
             <div class="bg-white p-6 rounded-3xl shadow-sm lg:col-span-2">
-                <h3 class="text-lg font-black text-gray-800 mb-6 flex items-center gap-2">
-                    <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Tendencia de Pagos
-                </h3>
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
+                    <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-green-500"></i> Tendencia de Pagos
+                    </h3>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <input type="date" id="trend-fecha-inicio"
+                            class="bg-gray-100 text-xs font-medium text-gray-700 rounded-lg border-none px-2 py-1.5 outline-none focus:ring-2 focus:ring-blue-500">
+                        <span class="text-gray-400 text-xs font-bold">a</span>
+                        <input type="date" id="trend-fecha-fin"
+                            class="bg-gray-100 text-xs font-medium text-gray-700 rounded-lg border-none px-2 py-1.5 outline-none focus:ring-2 focus:ring-blue-500">
+                        <button onclick="aplicarFiltroTendencia()"
+                            class="bg-blue-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-blue-700 transition">
+                            Filtrar
+                        </button>
+                        <button onclick="limpiarFiltroTendencia()"
+                            class="bg-gray-200 text-gray-600 text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-gray-300 transition">
+                            ✕
+                        </button>
+                    </div>
+                </div>
                 <div class="relative h-72 w-full">
                     <canvas id="trendChart"></canvas>
                 </div>
@@ -107,10 +145,13 @@
 
             <!-- Conciliación Diaria (Tabla rápida) -->
             <div class="bg-white p-6 rounded-3xl shadow-sm">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
-                        <i data-lucide="clipboard-check" class="w-5 h-5 text-teal-500"></i> Conciliación Hoy
-                    </h3>
+                <div class="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-black text-gray-800 flex items-center gap-2">
+                            <i data-lucide="clipboard-check" class="w-5 h-5 text-teal-500"></i> Conciliación Hoy
+                        </h3>
+                        <p class="text-sm text-gray-500 mt-1">Tasa BCV: <span id="conciliacion-tasa-bcv">--</span> Bs/USD</p>
+                    </div>
                     <span class="text-xs font-bold text-gray-400 bg-gray-100 px-2 py-1 rounded-lg" id="fecha-conciliacion">--/--/--</span>
                 </div>
                 
@@ -121,6 +162,7 @@
                                 <th class="px-4 py-3">Banco</th>
                                 <th class="px-4 py-3 text-right">Cant.</th>
                                 <th class="px-4 py-3 text-right">Total (Bs)</th>
+                                <th class="px-4 py-3 text-right">Total (USD)</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-conciliacion" class="divide-y divide-gray-100">
