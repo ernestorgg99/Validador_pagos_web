@@ -79,18 +79,17 @@ function requireAuth() {
  * Aplica permisos a la barra lateral (oculta opciones no autorizadas)
  */
 function applySidebarPermissions() {
-    const linkHistorial = document.getElementById('link-historial');
-    const linkReportes = document.getElementById('link-reportes');
+    const section = document.getElementById('reportes-section');
+    if (!section) return;
 
-    // Ocultar Historial si no tiene 'ver_historial'
-    // Nota: 'administrador' pasa checkPermission automáticamente
-    if (linkHistorial && !checkPermission('ver_historial')) {
-        linkHistorial.style.display = 'none';
+    if (!checkPermission('ver_reportes')) {
+        section.style.display = 'none';
+        return;
     }
 
-    // Ocultar Reportes si no tiene 'ver_reportes'
-    if (linkReportes && !checkPermission('ver_reportes')) {
-        linkReportes.style.display = 'none';
+    const linkHistorial = document.getElementById('link-historial');
+    if (linkHistorial && !checkPermission('ver_historial')) {
+        linkHistorial.style.display = 'none';
     }
 }
 
