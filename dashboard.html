@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
+    <script>
+        (function () {
+            const rol = localStorage.getItem('usuario_rol');
+            const perms = localStorage.getItem('usuario_permisos') || '[]';
+            if (rol !== 'administrador' && !perms.includes('ver_reportes') && !perms.includes('all')) {
+                alert("Acceso Restringido: No tienes permiso para ver este reporte.");
+                window.location.href = 'index.html';
+            }
+        })();
+    </script>
 
     <!-- Navbar -->
     <nav class="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
